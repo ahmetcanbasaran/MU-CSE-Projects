@@ -1,4 +1,4 @@
-# Marmara Universty Course Projects
+# Marmara Universty - Computer Science Engineering Course Projects
 
 ## 1.Semester: 2015-2016 Fall
 
