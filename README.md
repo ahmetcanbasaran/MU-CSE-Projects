@@ -4,18 +4,23 @@
 
 ### CSE1100 - Introduction to Computer Engineering
 Advisor: Asst. Prof. Dr. Betül DEMİRÖZ BOZ
+
 ECTS: 2
 
 ### CSE1141 - Computer Programming I
 Advisor: Assoc. Prof. Dr. Ali Fuat ALKAYA
+
 T.A.: Akıner ALKAN
+
 ECTS: 6
 
 ## 2.Semester: 2015-2016 Spring
 
 ### CSE1142 - Computer Programming II
 Advisor: Assoc. Prof. Dr. Ali Fuat ALKAYA
+
 T.A.: Akıner ALKAN
+
 ECTS: 6
 
 ## 3.Semester: 2016-2017 Fall
