@@ -1,0 +1,187 @@
+int maviEn = 4; //left motor direction
+int maviIn1 = 49; //left motor pwm
+int maviIn2 = 48; //right motor direction
+
+int morIn1 = 47;
+int morIn2 = 46;
+int morEn = 5;
+
+int sagEn = 2; 
+int sagIn1 = 53; 
+int sagIn2 = 52; 
+
+int solIn1 = 51;
+int solIn2 = 50;
+int solEn = 3;
+
+const int trigPinOn1 = ?;
+const int echoPinOn1 = ?;
+
+const int trigPinAlt1 = ?;
+const int echoPinAlt1 = ?;
+
+const int trigPinOn2 = ?;
+const int echoPinOn2= ?;
+
+const int trigPinAlt2 = ?;
+const int echoPinAlt2 = ?;
+
+//QTRs
+const int solQTR1 = ? ;
+const int solQTR2 = ?;
+
+const int sagQTR1 = ?;
+const int sagQTR2 = ?;
+
+
+
+int pinionSpeed = 200;
+int wheelSpeed = 200;
+
+void setup() {
+   // set all the motor control pins to outputs
+  pinMode(maviEn, OUTPUT);      pinMode(maviIn1, OUTPUT);     pinMode(maviIn2, OUTPUT);     
+  pinMode(morIn1, OUTPUT);      pinMode(morIn2, OUTPUT);      pinMode(morEn, OUTPUT);
+  
+  pinMode(sagEn, OUTPUT);     pinMode(sagIn1, OUTPUT);      pinMode(sagIn2, OUTPUT);
+  pinMode(solIn1, OUTPUT);      pinMode(solIn2, OUTPUT);      pinMode(solEn, OUTPUT);
+
+   //Set Ultra-sonic sensor pins
+  pinMode(trigPinOn1, OUTPUT);
+  pinMode(echoPinOn1, INPUT);
+
+  pinMode(trigPinAlt1, OUTPUT);
+  pinMode(echoPinAlt1, INPUT);
+
+  pinMode(trigPinOn2, OUTPUT);
+  pinMode(echoPinOn2, INPUT);
+
+  pinMode(trigPinAlt2, OUTPUT);
+  pinMode(echoPinAlt2, INPUT);
+
+  //Set QTR pins
+  pinMode(solQTR1, INPUT);
+  pinMode(solQTR2, INPUT);
+  pinMode(sagQTR1, INPUT);
+  pinMode(sagQTR2, INPUT);
+  
+  
+  Serial.begin(9600);
+
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+
+}
+
+void yukari(){
+//Turn on wheel motors
+  digitalWrite(sagIn1, HIGH);     digitalWrite(sagIn2, LOW);      //Ileri yön
+  digitalWrite(solIn1, HIGH);     digitalWrite(solIn2, LOW);    //Ileri yön
+  digitalWrite(maviIn1, HIGH);      digitalWrite(maviIn2, LOW);  //Pinionlar yukari
+  digitalWrite(morIn1, LOW);      digitalWrite(morIn2, HIGH);   //Pnionlar yukari
+  
+  analogWrite(sagEn, wheelSpeed);     analogWrite(solEn, wheelSpeed);
+  Serial.println("Tum motorlar acik!!");
+  delay(5000);
+
+  digitalWrite(maviIn1, LOW);     digitalWrite(maviIn2, LOW);   //pinion stop
+  digitalWrite(morIn1, LOW);      digitalWrite(morIn2, LOW);   //pinion stop
+  Serial.println("Pinionlar durdu!!");
+  delay(3000);
+
+  digitalWrite(maviIn1, LOW);      digitalWrite(maviIn2, HIGH);  //Pinionlar asagi
+  digitalWrite(morIn1, HIGH);      digitalWrite(morIn2, LOW);   //Pinionlar asagi
+  Serial.println("Pinionlar asagi !!");
+  
+  return;
+
+}
+
+
+void sagQTRYukariSay(int x){
+
+  int sag1=digitalRead(sagQTR1);
+  int sag2=digitalRead(sagQTR2);
+  int counter=0;
+
+  if(sag1==0 && sag2==1){
+    counter++;
+  }else if(sag1==1 && sag2==1){
+    counter++;
+  }else if(sag1==1 && sag2==0){
+    counter++;
+  }else if(sag1==0 && sag2==0){
+    counter++;
+  }
+
+  if((counter/12)==x){
+    return;
+  }
+
+}
+
+void solQTRYukariSay(int x){
+
+  int sol1=digitalRead(solQTR1);
+  int sol2=digitalRead(solQTR2);
+  int counter=0;
+
+  if(sol1==0 && sol2==1){
+    counter++;
+  }else if(sol1==0 && sol2==0){
+    counter++;
+  }else if(sol1==1 && sol2==0){
+    counter++;
+  }else if(sol1==1 && sol2==1){
+    counter++;
+  }
+
+  if((counter/12)==x){
+    return;
+  }
+
+  void sagQTRAsagiSay(int x){
+
+  int sag1=digitalRead(sagQTR1);
+  int sag2=digitalRead(sagQTR2);
+  int counter=0;
+
+  if(sag1==0 && sag2==1){
+    counter++;
+  }else if(sag1==0 && sag2==0){
+    counter++;
+  }else if(sag1==1 && sag2==0){
+    counter++;
+  }else if(sag1==1 && sag2==1){
+    counter++;
+  }
+
+  if((counter/12)==x){
+    return;
+  }
+
+}
+
+void solQTRAsagiSay(int x){
+
+  int sol1=digitalRead(solQTR1);
+  int sol2=digitalRead(solQTR2);
+  int counter=0;
+
+  if(sol1==0 && sol2==1){
+    counter++;
+  }else if(sol1==1 && sol2==1){
+    counter++;
+  }else if(sol1==1 && sol2==0){
+    counter++;
+  }else if(sol1==0 && sol2==0){
+    counter++;
+  }
+
+  if((counter/12)==x){
+    return;
+  }
+
+}

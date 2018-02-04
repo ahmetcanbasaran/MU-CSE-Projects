@@ -1,0 +1,7 @@
+Notes
+
+    You can leave the preamble and access code fields blank in the packet encoder and packet decoder blocks, and default values will be chosen automatically.
+    If you create your own access codes (like I do in this example), the packet encoder and packet decoder codes must match perfectly for the decoder to pass the data (this is obvious).
+    If you create your own access codes, you must choose long codes. I experimented with different access code lengths and the encoder/decoder blocks just don't work for short codes. I don't know the magic number of bits you need for the access codes, but if it is not working for you, try a longer code!
+    I included a scope in the flow graph above to confirm that the File Source was indeed sending the correct bits. For example, I created a source text file, wich included just the letter "h". Then I observed that, indeed, the file was sending the expected ASCII 1's and 0's pattern for the letter "h".
+
