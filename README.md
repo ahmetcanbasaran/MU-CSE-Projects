@@ -35,7 +35,7 @@ T.A.: R.A. Berna ALTINEL
 ECTS: 8
 
 ### CSE3063 - Object-Oriented Software Design
-Instructor: Peter Schueller
+Instructor: Peter SCHUELLER
 
 ECTS: 5
 
@@ -84,3 +84,41 @@ Instructor: Asst. Prof. Dr. Mustafa AĞAOĞLU
 T.A.: R.A. Gözde ALP
 
 ECTS: 7
+
+
+## 6.Semester: 2017-2018 Spring
+
+### CSE3038 - Computer Organization
+Instructor: Prof. Dr. Haluk TOPÇUOĞLU
+
+T.A.:
+
+ECTS: 7
+
+### CSE3064 - Formal Languages and Automata Theory
+Instructor: Asst. Prof. Dr. Ali Haydar ÖZER
+
+T.A.:
+
+ECTS: 6
+
+### CSE3048 - Introduction to Signals and Systems
+Instructor: Asst. Prof. Dr. Mehmet BARAN
+
+T.A.: 
+
+ECTS: 5
+
+### CSE2046 - Analysis of Algorithms
+Instructor: Asst. Prof. Dr. Ömer KORÇAK
+
+T.A.:
+
+ECTS: 6
+
+### STAT2053 - Introduction to Probability and Statistics
+Instructor: Assoc. Prof. Dr. Müjdat SOYTÜRK
+
+T.A.: R.A. Muhammed Nur AVCİL
+
+ECTS: 4
