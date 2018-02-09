@@ -2,4 +2,4 @@
 
 ## 6 Homeworks
 
-## Programming language: #Java
+## Programming language: Java

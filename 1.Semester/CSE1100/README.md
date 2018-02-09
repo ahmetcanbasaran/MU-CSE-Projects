@@ -2,5 +2,4 @@
 
 ## Term Project
 
-## Programming language: 
-#Java
+## Programming language: Java
