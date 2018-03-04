@@ -1,10 +1,3 @@
-/*
-*           23.02.2018, Friday Night
-*           Euclid's Great Common Divisor Algorithm
-*           Author: Oğuzhan BÖLÜKBAŞ
-*
-*/
-
 #include <iostream>
 
 using namespace std;
