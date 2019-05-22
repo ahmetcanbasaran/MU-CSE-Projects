@@ -1,0 +1,5 @@
+Merhaba,
+
+Projede hash table sayısı 2-5 arasında seçilebilir olmalı.  Yani, maksimum number of tables = 5.
+
+İyi çalışmalar
