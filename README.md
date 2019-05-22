@@ -91,28 +91,28 @@ ECTS: 7
 ### CSE3038 - Computer Organization
 Instructor: Prof. Dr. Haluk TOPÇUOĞLU
 
-T.A.:
+T.A.: R.A. Sanem ARSLAN YILMAZ
 
 ECTS: 7
 
 ### CSE3064 - Formal Languages and Automata Theory
 Instructor: Asst. Prof. Dr. Ali Haydar ÖZER
 
-T.A.:
+T.A.: R.A. Gözde ALP
 
 ECTS: 6
 
 ### CSE3048 - Introduction to Signals and Systems
 Instructor: Asst. Prof. Dr. Mehmet BARAN
 
-T.A.: 
+T.A.: R.A. Lokman ALTIN
 
 ECTS: 5
 
 ### CSE2046 - Analysis of Algorithms
 Instructor: Asst. Prof. Dr. Ömer KORÇAK
 
-T.A.:
+T.A.: R.A. Muhammed Nur AVCİL
 
 ECTS: 6
 
@@ -120,5 +120,43 @@ ECTS: 6
 Instructor: Assoc. Prof. Dr. Müjdat SOYTÜRK
 
 T.A.: R.A. Muhammed Nur AVCİL
+
+ECTS: 4
+
+
+## 8.Semester: 2018-2019 Spring
+
+### CSE3044 - Software Engineering
+Instructor: Assoc. Prof. Dr. Borahan TÜMER
+
+T.A.: R.A. Berna ALTINEL
+
+ECTS: 7
+
+### CSE4034 - Advanced Unix Programming
+Instructor: Asst. Prof. Dr. Betül DEMİRÖZ BOZ
+
+T.A.: R.A. Sanem ARSLAN YILMAZ
+
+ECTS: 5
+
+### CSE4065 - Introduction to Computational Genomics
+Instructor: Asst. Prof. Dr. Betül DEMİRÖZ BOZ
+
+T.A.: R.A. Sanem ARSLAN YILMAZ
+
+ECTS: 5
+
+### CSE4094 - Advanced Data Structures
+Instructor: Asst. Prof. Dr. Fatma CORUT ERGİN
+
+T.A.: -
+
+ECTS: 5
+
+### CSE4197 - Engineering Project I
+Instructor: Asst. Prof. Dr. Fatma CORUT ERGİN
+
+T.A.: -
 
 ECTS: 4
