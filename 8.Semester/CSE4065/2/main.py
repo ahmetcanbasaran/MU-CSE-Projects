@@ -83,6 +83,24 @@ def construct_profile(motifs, k):
         profile[3][i] = counter_C / 10.0
     return profile
 
+# The difference from RMS is GS uses 9 motifs to construct profile, not 10
+def construct_gibbs_profile(motifs, k, rand):
+    width, height = k, 4
+    profile = [[0 for x in range(width)] for y in range(height)]  # Empty profile matrix
+    for i in range(k):
+        counter_A, counter_T, counter_G, counter_C = 0, 0, 0, 0
+        for j in range(10):
+            if(j != rand):
+                if   (motifs[j][i] == "A"):     counter_A = counter_A + 1
+                elif (motifs[j][i] == "T"):     counter_T = counter_T + 1
+                elif (motifs[j][i] == "G"):     counter_G = counter_G + 1
+                else:                           counter_C = counter_C + 1
+        profile[0][i] = counter_A + 1 / 13.0  # Added 1 to avoid 0 probability
+        profile[1][i] = counter_T + 1 / 13.0  # Divided by 13 because we have 9 different motifs and
+        profile[2][i] = counter_G + 1 / 13.0  # -> we adding 4 to each protein base, thus 9+4=13
+        profile[3][i] = counter_C + 1 / 13.0
+    return profile
+
 
 # To compute occurence probability of each different k-mers in DNA strings and produce probability matrix
 def compute_prob(dna_strings, k, profile):
@@ -98,6 +116,22 @@ def compute_prob(dna_strings, k, profile):
                 elif (k_mer[m] == "G"):     prob = prob * profile[2][m]
                 else:                       prob = prob * profile[3][m]
             probability[i][j] = prob
+    return probability
+
+
+# The difference from RMS is GS produces a prob. matrix for deleted motifs, not for all as RMS
+def compute_gibbs_prob(dna_strings, k, profile, rand):
+    width = 500-k+1
+    probability = [0 for x in range(width)]  # Empty probability matrix
+    for i in range(width):
+        k_mer = dna_strings[rand][i:i+k]
+        prob = 1.0
+        for m in range(k):
+            if   (k_mer[m] == "A"):     prob = prob * profile[0][m]
+            elif (k_mer[m] == "T"):     prob = prob * profile[1][m]
+            elif (k_mer[m] == "G"):     prob = prob * profile[2][m]
+            else:                       prob = prob * profile[3][m]
+        probability[i] = prob
     return probability
 
 
@@ -138,21 +172,24 @@ def construct_random_motifs(dna_strings, probability, k):
 
 # To produce only 1 k-mers changed motifs with taking most probable k-mer from a
 # randomly choosen DNA string with using probability matrix
-def construct_gibbs_motifs(dna_strings, motifs, probability, k):
+def construct_gibbs_motifs(dna_strings, motifs, probability, k, rand):
     new_motif = ""
-    rand = random.sample(range(0, 10), 1)[0]
-    highest_prob = 0
-    index = 0
+    highest_prob, prob_sum, index = 0, 0, 0
+    for i in range (500-k+1):
+        prob_sum = prob_sum + probability[i]
+    random_prob = random.uniform(0, prob_sum)  # To generate biased random number
+    current_prob_sum = 0
     for i in range(500-k+1):
-        if(probability[rand][i] > highest_prob):
-            highest_prob = probability[rand][i]
+        current_prob_sum = current_prob_sum + probability[i]
+        if(random_prob < current_prob_sum):  # To find new lucky motif with biased random generated
             index = i
+            break
     new_motif = dna_strings[rand][index:index+k]
     motifs[rand] = new_motif
     return motifs
 
 
-# To produce consensus string from
+# To produce consensus string
 def find_consensus(profile, k):
     consensus_string = ""
     for i in range(k):
@@ -173,30 +210,48 @@ def find_consensus(profile, k):
 
 # To run Randomized Motif Search Algorithm
 def randomized_motif_search(dna_strings, k):
-    RMS_ITERATION = 100  # To iterate the algorithm 100 times
-    motifs = randomly_choose(dna_strings, k)  # To get randomly produced motifs
-    for i in range(RMS_ITERATION):
-        profile = construct_profile(motifs, k)  # To construct profile matrix of motifs
+    best_motifs = randomly_choose(dna_strings, k)  # To get randomly produced motifs
+    old_score = compute_score(best_motifs, k)  # To calculate score of the motifs
+    while True:
+        profile = construct_profile(best_motifs, k)  # To construct profile matrix of motifs
         probability = compute_prob(dna_strings, k, profile)  # To calculate occurence probability of all k-mers in DNA strings
         motifs = construct_random_motifs(dna_strings, probability, k)  # To construct new motifs with using profile matrix
-    score = compute_score(motifs, k)  # To calculate score of the motifs
-    return find_consensus(profile, k), score
+        new_score = compute_score(motifs, k)  # To calculate score of the motifs
+        if(new_score < old_score):  # To check whether founded new motifs are better than old motifs for Score(Motifs)
+            print new_score
+            best_motifs = motifs
+            old_score = new_score
+        else:  # To end algorithm with procuding end up required assignments
+            profile = construct_profile(best_motifs, k)  # To construct profile matrix of motifs
+            for i in range (10):    print best_motifs[i]
+            return find_consensus(profile, k), new_score
 
 
 # To run Gibbs Sampler Algorithm
 def gibbs_sampler(dna_strings, k):
     count_50 = 0
-    motifs = randomly_choose(dna_strings, k)  # To get randomly produced motifs
-    old_score = compute_score(motifs, k)  # To calculate score of the motifs
+    best_motifs = randomly_choose(dna_strings, k)  # To get randomly produced motifs
+    old_score = compute_score(best_motifs, k)  # To calculate score of the motifs
+    score = old_score
     while(count_50 != 50):
-        profile = construct_profile(motifs, k)  # To construct profile matrix of motifs
-        probability = compute_prob(dna_strings, k, profile)  # To calculate occurence probability of all k-mers in DNA strings
-        motifs = construct_gibbs_motifs(dna_strings, motifs, probability, k)  # To construct new motifs with using profile matrix
-        new_score = compute_score(motifs, k)  # To calculate score of the motifs
-        if (old_score == new_score):    count_50 = count_50 + 1
-        else:                           count_50 = 0
+        rand = random.randint(0,9)
+        profile = construct_gibbs_profile(best_motifs, k, rand)  # To construct profile matrix of motifs
+        probability = compute_gibbs_prob(dna_strings, k, profile, rand)  # To calculate occurence probability of all k-mers in DNA strings
+        new_motifs = construct_gibbs_motifs(dna_strings, best_motifs, probability, k, rand)  # To construct new motifs with using profile matrix
+        new_score = compute_score(new_motifs, k)  # To calculate score of the motifs
+        if(new_score < score):  # To check whether founded new motifs are better than old motifs for Score(Motifs)
+            best_motifs = new_motifs
+            score = new_score
+            print score
+        if (old_score == new_score):  # To count last 50 score to end the program
+            count_50 = count_50 + 1
+        else:  # To zero in last 50 score counter
+            count_50 = 0
         old_score = new_score
-    return find_consensus(profile, k), old_score
+    for i in range (10):  # To print motifs
+        print best_motifs[i]
+    profile = construct_profile(best_motifs, k)  # To construct profile matrix of motifs to find Consensus String
+    return find_consensus(profile, k), score
 
 
 # Main function
@@ -211,21 +266,19 @@ def main():
     mutated_10mers = mutate(random_10mer)   # To generate mutated 10 10-mers
     insert(dna_strings, mutated_10mers)     # To insert mutated 10-mers into DNA strings
 
-    print "\n\nRandomized Motif Search has began!\n"
-    # To run randomized motif search algorithm
-    result_randomized = randomized_motif_search(dna_strings, k)
-    # To get consensus string and score of last motifs from returned list
-    consensus_randomized, score_randomized = result_randomized[0], result_randomized[1]
+    print "\n\nRandomized Motif Search!\n"
+    result_randomized = randomized_motif_search(dna_strings, k)  # To run randomized motif search algorithm
+    consensus_randomized, score_randomized = result_randomized[0], result_randomized[1]  # To get consensus string and score of last motifs from returned list
     print "Consensus string is: ", consensus_randomized, " with score ", score_randomized
+
     print "\n\n------------------------------------------------\n\n"
 
-    print "Gibbs sampler has began!\n"
-    # To run Gibbs Sampler Algorithm
-    result_gibbs = gibbs_sampler(dna_strings, k)
-    # To get consensus string and score of last motifs from returned list
-    consensus_gibbs, score_gibbs = result_gibbs[0], result_gibbs[1]
+    print "Gibbs Sampler!\n"
+    result_gibbs = gibbs_sampler(dna_strings, k)  # To run Gibbs Sampler Algorithm
+    consensus_gibbs, score_gibbs = result_gibbs[0], result_gibbs[1]  # To get consensus string and score of last motifs from returned list
     print "Consensus string is: ", consensus_gibbs, " with score ", score_gibbs, "\n\n"
 
 
+# To run main function in the beginning of the progra
 if __name__ == '__main__':
     main()
