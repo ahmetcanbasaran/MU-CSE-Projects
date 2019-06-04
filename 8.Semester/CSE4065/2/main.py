@@ -270,9 +270,7 @@ def main():
     result_randomized = randomized_motif_search(dna_strings, k)  # To run randomized motif search algorithm
     consensus_randomized, score_randomized = result_randomized[0], result_randomized[1]  # To get consensus string and score of last motifs from returned list
     print "Consensus string is: ", consensus_randomized, " with score ", score_randomized
-
-    print "\n\n------------------------------------------------\n\n"
-
+    print "\n--------------------------------------------------------\n"
     print "Gibbs Sampler!\n"
     result_gibbs = gibbs_sampler(dna_strings, k)  # To run Gibbs Sampler Algorithm
     consensus_gibbs, score_gibbs = result_gibbs[0], result_gibbs[1]  # To get consensus string and score of last motifs from returned list
