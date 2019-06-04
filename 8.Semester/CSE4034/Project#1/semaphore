@@ -1,0 +1,6 @@
+The POSIX system in Linux presents its own built-in semaphore library. To use it, we have to :
+
+    Include semaphore.h
+    Compile the code by linking with -lpthread -lrt
+
+
