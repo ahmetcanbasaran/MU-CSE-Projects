@@ -1,1 +1,1 @@
-# Cuckoo Hashing Visualization
+# To visualize Cuckoo Hashing
