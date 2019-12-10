@@ -1,0 +1,14 @@
+Analysis & Synthesis Status : Successful - Mon Nov 04 20:51:58 2019
+Quartus Prime Version : 18.1.0 Build 625 09/12/2018 SJ Lite Edition
+Revision Name : Segment7
+Top-level Entity Name : TopModule
+Family : Cyclone IV E
+Total logic elements : 288
+    Total combinational functions : 238
+    Dedicated logic registers : 96
+Total registers : 96
+Total pins : 29
+Total virtual pins : 0
+Total memory bits : 2,560
+Embedded Multiplier 9-bit elements : 0
+Total PLLs : 0

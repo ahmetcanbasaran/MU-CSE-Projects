@@ -1,0 +1,12 @@
+module TopModule( reg0, grounds, grounds1, display, clk50Mhz, clkPushButton );
+
+inout wire [15:0] reg0;
+output wire [3:0] grounds;
+output wire [6:0] display;
+output [3:0] grounds1;
+input clk50Mhz, clkPushButton;
+
+SevenSegmentDisplayDriver sevenSegDriver( reg0, grounds, grounds1, display, clk50Mhz );
+FrogCPU cpu( clkPushButton, reg0 );
+
+endmodule
