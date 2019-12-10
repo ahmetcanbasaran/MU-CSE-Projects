@@ -1,0 +1,29 @@
+-- begin_signature
+-- SevenSegmentDisplayDriver
+-- end_signature
+WIDTH=4;
+DEPTH=18;
+
+ADDRESS_RADIX=UNS;
+DATA_RADIX=BIN;
+
+CONTENT BEGIN
+	17 :	0001;
+	16 :	0100;
+	15 :	0000;
+	14 :	0010;
+	13 :	0010;
+	12 :	0001;
+	11 :	0101;
+	10 :	0000;
+	9 :	0001;
+	8 :	0001;
+	7 :	0100;
+	6 :	1010;
+	5 :	1010;
+	4 :	1010;
+	3 :	0001;
+	2 :	0101;
+	1 :	0000;
+	0 :	0001;
+END;

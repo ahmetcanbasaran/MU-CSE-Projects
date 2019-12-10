@@ -1,0 +1,3 @@
+Warning (10268): Verilog HDL information at SevenSegmentDisplayDriver.v(25): always construct contains both blocking and non-blocking assignments File: C:/Users/PoYRaZz/Desktop/Segment7 - Copy/SevenSegmentDisplayDriver.v Line: 25
+Warning (10268): Verilog HDL information at SevenSegmentDisplayDriver.v(34): always construct contains both blocking and non-blocking assignments File: C:/Users/PoYRaZz/Desktop/Segment7 - Copy/SevenSegmentDisplayDriver.v Line: 34
+Warning (10268): Verilog HDL information at SevenSegmentDisplayDriver.v(56): always construct contains both blocking and non-blocking assignments File: C:/Users/PoYRaZz/Desktop/Segment7 - Copy/SevenSegmentDisplayDriver.v Line: 56
