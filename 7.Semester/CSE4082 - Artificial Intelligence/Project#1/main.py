@@ -128,8 +128,8 @@ def find_solution_path(node):
 def print_queue(queue):
   positions = []
   for node in queue:
-    positions.append(node.position)
-  print("\nQueue: ", positions)
+    positions.append([node.position, node.cost])
+  print("Queue: ", positions, "\n")
 
 
 # This method is used by IDS()
@@ -192,7 +192,6 @@ def order_frontier_by_cost(parent, priority_queue, p_positions):
           old_node = priority_queue.pop()
         else:
           old_node = None
-
       elif new_node:
         new_priority_queue.append(new_node)
         if new_nodes:
@@ -216,7 +215,71 @@ def find_distance_to_goals(position):
   return total_distance_to_goals
 
 
+# This method is used by A* Heuristic Search
+def order_for_a_star(parent, priority_queue, p_positions, position_and_distances):
+  new_priority_queue, new_nodes = [], []
+  with_trap, without_trap = [], []
+
+  for position in p_positions:
+    if not is_visited(position):
+      if is_trap(position):
+        child = Node(parent, position, parent.depth + 1, parent.cost + 7 + find_distance_to_goals(position))
+        with_trap.append(child)
+      else:
+        child = Node(parent, position, parent.depth + 1, parent.cost + 1 + find_distance_to_goals(position))
+        without_trap.append(child)
+
+  new_nodes = with_trap + without_trap
+
+  if not priority_queue:
+    while new_nodes:
+      node = new_nodes.pop()
+      new_priority_queue.append(node)
+    new_priority_queue.reverse()
+    return new_priority_queue
+
+  else:
+    if priority_queue:
+      old_node = priority_queue.pop()
+    else:
+      old_node = None
+
+    if new_nodes:
+      new_node = new_nodes.pop()
+    else:
+      new_node = None
+
+    while True:
+      if old_node:
+        old_node_cost = old_node.cost
+      else:
+        old_node_cost = 1000
+      if new_node:
+        new_node_cost = new_node.cost
+      else:
+        new_node_cost = 1000
+
+      if old_node_cost <= new_node_cost and old_node:
+        new_priority_queue.append(old_node)
+        if priority_queue:
+          old_node = priority_queue.pop()
+        else:
+          old_node = None
+      elif new_node:
+        new_priority_queue.append(new_node)
+        if new_nodes:
+          new_node = new_nodes.pop()
+        else:
+          new_node = None
+
+      if old_node is None and new_node is None:
+        new_priority_queue.reverse()
+        return new_priority_queue
+
+
 """---------------------------------Search Algorithms---------------------------------"""
+
+
 # Depth First Search
 def dfs():
   global current_position, visited_squares
@@ -306,25 +369,20 @@ def gbfs():
   initial_node = Node(None, current_position)
   frontier.append(initial_node)
   find_distance_to_goals(starting_position)
-
   while True:
     parent = frontier.pop()
     expanded_nodes.append([parent.position[0] + 1, parent.position[1] + 1])
-
     if is_goal(parent.position):
       find_solution_path(parent)
       return
-
     visited_squares.append(parent.position)
     p_positions = possible_positions(parent.position)
     p_positions.reverse()
     position_and_distances = []
-
     for position in p_positions:
       if not is_visited(position):
         distance = find_distance_to_goals(position)
         position_and_distances.append([position, distance])
-
     for dist in range(1000, 0, -1):
       for pos_and_dist in position_and_distances:
         if dist == pos_and_dist[1]:
@@ -332,9 +390,27 @@ def gbfs():
           frontier.append(child)
 
 
-# TODO: A* Heuristic Search
+# A* Heuristic Search
 def ashs():
-  pass
+  global current_position
+  priority_queue = []  # To keep least cost neighbour squares in IDS
+  initial_node = Node(None, current_position)
+  priority_queue.append(initial_node)
+  while True:
+    parent = priority_queue.pop()
+    expanded_nodes.append([parent.position[0] + 1, parent.position[1] + 1])
+    if is_goal(parent.position):
+      find_solution_path(parent)
+      return
+    visited_squares.append(parent.position)
+    p_positions = possible_positions(parent.position)
+    p_positions.reverse()
+    position_and_distances = []
+    for position in p_positions:
+      if not is_visited(position):
+        distance = find_distance_to_goals(position)
+        position_and_distances.append([position, distance])
+    priority_queue = order_for_a_star(parent, priority_queue, p_positions, position_and_distances)
 
 
 def main():
@@ -344,18 +420,13 @@ def main():
   read_walls(input_walls_path)
   find_square_features()
 
-  # dfs()
-  # bfs()
-  # ids()
-  # ucs()
-  gbfs()
-
-  """
-  print("a. Depth First Search\n" +
+  print("\nChoose a search method from below:\n" +
+        "a. Depth First Search\n" +
         "b. Breadth First Search\n" +
         "c. Iterative Deepening Search\n" +
-        "d. Depth First Search with Random Selection\n" +
-        "e. Depth First Search with a Node Selection Heuristic")
+        "d. Uniform Cost Search\n" +
+        "e. Greedy Best First Search\n" +
+        "f. A* Heuristic Search\n")
   method = input("Choose a search method: ")
   if method == 'a':
     print("\nSearch method is: Depth First Search")
@@ -369,13 +440,12 @@ def main():
   elif method == 'd':
     print("\nSearch method is: Uniform Cost Search")
     ucs()
-  elif method == 'r':
+  elif method == 'e':
     print("\nSearch method is: Greedy Best First Search")
     gbfs()
   elif method == 'f':
     print("\nSearch method is: A* Heuristic Search")
     ashs()
-  """
 
   # To print result
   print("Cost of the solution: \n", cost_of_solution, "\n")
