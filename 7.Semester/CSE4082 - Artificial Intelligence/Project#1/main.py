@@ -21,6 +21,7 @@ squares = []  # To store squares of maze
 goal_positions = []  # To keep positions of "G" letter squares
 trap_positions = []  # To keep positions of "T" letter squares
 current_position = None  # To keep current position coordinates of agent
+starting_position = None
 maze_length = -1  # To keep row or column length of the maze
 
 cost_of_solution = -1
@@ -53,7 +54,7 @@ def read_walls(path):
 
 
 def find_square_features():
-  global current_position
+  global current_position, starting_position
   r, c = -1, -1
   for row in squares:
     r += 1
@@ -62,6 +63,7 @@ def find_square_features():
       c += 1
       if letter == "S":
         current_position = [r, c]
+        starting_position = [r, c]
       elif letter == "G":
         goal_positions.append([r, c])
       elif letter == "T":
@@ -70,7 +72,7 @@ def find_square_features():
 
 def reset_variables():
   global current_position, cost_of_solution, solution_path, expanded_nodes, visited_squares
-  current_position = None  # To keep current position coordinates of agent
+  current_position = starting_position  # To keep current position coordinates of agent
   cost_of_solution = -1
   solution_path = []  # To keep solution path
   expanded_nodes = []  # To keep expanded nodes
@@ -228,7 +230,7 @@ def dfs():
 # Breadth First Search
 def bfs():
   global current_position, visited_squares
-  frontier = queue.Queue()  # Stack for DFS. Use append() and pop()
+  frontier = queue.Queue()  # Queue for BFS. Use put() and get()
   initial_node = Node(None, current_position)
   frontier.put(initial_node)
   while True:
@@ -254,21 +256,21 @@ def ids():
   initial_node = Node(None, current_position)
   for depth in range(maze_length * maze_length):
     reset_variables()
-    frontier = queue.Queue()  # Stack for DFS. Use append() and pop()
-    frontier.put(initial_node)
-    while not frontier.empty():
-      parent = frontier.get()
+    frontier = [initial_node]
+    while frontier:
+      parent = frontier.pop()
       expanded_nodes.append([parent.position[0] + 1, parent.position[1] + 1])
       if is_goal(parent.position):
         find_solution_path(parent)
         return
       visited_squares.append(parent.position)
       p_positions = possible_positions(parent.position)
+      p_positions.reverse()
       if parent.depth < depth:
         for position in p_positions:
           if not is_visited(position):
             child = Node(parent, position, parent.depth + 1)
-            frontier.put(child)
+            frontier.append(child)
 
 
 # Uniform Cost Search
@@ -309,11 +311,11 @@ def main():
   read_walls(input_walls_path)
   find_square_features()
 
-  # WARNING: Order of node expansion should be East, South, West, North
   # dfs()
   # bfs()
-  # ids()
-  ucs()
+  ids()
+  # ucs()
+  # gbfs()
 
   """
   print("a. Depth First Search\n" +
@@ -343,9 +345,9 @@ def main():
   """
 
   # To print result
-  print("The cost of the solution: \n", cost_of_solution, "\n")
-  print("The solution path is: \n", solution_path, "\n")
-  print("Expanded nodes are: \n", expanded_nodes, "\n")
+  print("Cost of the solution: \n", cost_of_solution, "\n")
+  print("Solution path: \n", solution_path, "\n")
+  print("Expanded nodes: \n", expanded_nodes, "\n")
 
 
 if __name__ == '__main__':
