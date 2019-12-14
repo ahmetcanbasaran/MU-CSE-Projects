@@ -70,15 +70,6 @@ def find_square_features():
         trap_positions.append([r, c])
 
 
-def reset_variables():
-  global current_position, cost_of_solution, solution_path, expanded_nodes, visited_squares
-  current_position = starting_position  # To keep current position coordinates of agent
-  cost_of_solution = -1
-  solution_path = []  # To keep solution path
-  expanded_nodes = []  # To keep expanded nodes
-  visited_squares = []  # To keep visited squares
-
-
 # To find possible squares the agent can move
 def possible_positions(position):
   pos_moves = []
@@ -137,10 +128,21 @@ def find_solution_path(node):
 def print_queue(queue):
   positions = []
   for node in queue:
-    positions.append([node.position, node.cost])
+    positions.append(node.position)
   print("\nQueue: ", positions)
 
 
+# This method is used by IDS()
+def reset_variables():
+  global current_position, cost_of_solution, solution_path, expanded_nodes, visited_squares
+  current_position = starting_position  # To keep current position coordinates of agent
+  cost_of_solution = -1
+  solution_path = []  # To keep solution path
+  expanded_nodes = []  # To keep expanded nodes
+  visited_squares = []  # To keep visited squares
+
+
+# This method used by UCS()
 def order_frontier_by_cost(parent, priority_queue, p_positions):
   new_priority_queue, new_nodes = [], []
   with_trap, without_trap = [], []
@@ -203,6 +205,18 @@ def order_frontier_by_cost(parent, priority_queue, p_positions):
         return new_priority_queue
 
 
+# This methos is used by GBFS()
+def find_distance_to_goals(position):
+  global maze_length
+  total_distance_to_goals = 0
+  for x in range(maze_length):
+    for y in range(maze_length):
+      if is_goal([x, y]):
+        total_distance_to_goals += abs(x - position[0]) + abs(y - position[1])
+  return total_distance_to_goals
+
+
+"""---------------------------------Search Algorithms---------------------------------"""
 # Depth First Search
 def dfs():
   global current_position, visited_squares
@@ -210,9 +224,6 @@ def dfs():
   initial_node = Node(None, current_position)
   frontier.append(initial_node)
   while True:
-    if not frontier:
-      print("Frontier is empty. There is no solution")
-      return None
     parent = frontier.pop()
     expanded_nodes.append([parent.position[0] + 1, parent.position[1] + 1])
     if is_goal(parent.position):
@@ -234,9 +245,6 @@ def bfs():
   initial_node = Node(None, current_position)
   frontier.put(initial_node)
   while True:
-    if frontier.empty():
-      print("Frontier is empty. There is no solution")
-      return None
     parent = frontier.get()
     expanded_nodes.append([parent.position[0] + 1, parent.position[1] + 1])
     if is_goal(parent.position):
@@ -280,9 +288,6 @@ def ucs():
   initial_node = Node(None, current_position)
   priority_queue.append(initial_node)
   while True:
-    if not priority_queue:
-      print("Frontier is empty. There is no solution")
-      return None
     parent = priority_queue.pop()
     expanded_nodes.append([parent.position[0] + 1, parent.position[1] + 1])
     if is_goal(parent.position):
@@ -294,9 +299,37 @@ def ucs():
     priority_queue = order_frontier_by_cost(parent, priority_queue, p_positions)
 
 
-# TODO: Greedy Best First Search
+# Greedy Best First Search
 def gbfs():
-  pass
+  global current_position, visited_squares
+  frontier = []  # Stack for GBFS
+  initial_node = Node(None, current_position)
+  frontier.append(initial_node)
+  find_distance_to_goals(starting_position)
+
+  while True:
+    parent = frontier.pop()
+    expanded_nodes.append([parent.position[0] + 1, parent.position[1] + 1])
+
+    if is_goal(parent.position):
+      find_solution_path(parent)
+      return
+
+    visited_squares.append(parent.position)
+    p_positions = possible_positions(parent.position)
+    p_positions.reverse()
+    position_and_distances = []
+
+    for position in p_positions:
+      if not is_visited(position):
+        distance = find_distance_to_goals(position)
+        position_and_distances.append([position, distance])
+
+    for dist in range(1000, 0, -1):
+      for pos_and_dist in position_and_distances:
+        if dist == pos_and_dist[1]:
+          child = Node(parent, pos_and_dist[0], parent.depth + 1)
+          frontier.append(child)
 
 
 # TODO: A* Heuristic Search
@@ -313,9 +346,9 @@ def main():
 
   # dfs()
   # bfs()
-  ids()
+  # ids()
   # ucs()
-  # gbfs()
+  gbfs()
 
   """
   print("a. Depth First Search\n" +
