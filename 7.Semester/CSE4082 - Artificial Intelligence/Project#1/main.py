@@ -81,9 +81,6 @@ def reset_variables():
 def possible_positions(position):
   pos_moves = []
   x, y = position[0], position[1]  # Current coordinates
-  if position[0] != 0:  # NORTH
-    if walls[x][y][3] == "O":
-      pos_moves.append([position[0] - 1, position[1]])
   if position[1] != maze_length - 1:  # EAST
     if walls[x][y][0] == "O":
       pos_moves.append([position[0], position[1] + 1])
@@ -93,6 +90,9 @@ def possible_positions(position):
   if position[1] != 0:  # WEST
     if walls[x][y][2] == "O":
       pos_moves.append([position[0], position[1] - 1])
+  if position[0] != 0:  # NORTH
+    if walls[x][y][3] == "O":
+      pos_moves.append([position[0] - 1, position[1]])
   return pos_moves
 
 
@@ -127,14 +127,83 @@ def find_solution_path(node):
       cost_of_solution += 7
     else:
       cost_of_solution += 1
-    solution_path.append(node.position)
+    solution_path.append([node.position[0] + 1, node.position[1] + 1])
     node = node.parent
   solution_path.reverse()
 
 
+def print_queue(queue):
+  positions = []
+  for node in queue:
+    positions.append([node.position, node.cost])
+  print("\nQueue: ", positions)
+
+
+def order_frontier_by_cost(parent, priority_queue, p_positions):
+  new_priority_queue, new_nodes = [], []
+  with_trap, without_trap = [], []
+
+  for position in p_positions:
+    if not is_visited(position):
+      if is_trap(position):
+        child = Node(parent, position, parent.depth + 1, parent.cost + 7)
+        with_trap.append(child)
+      else:
+        child = Node(parent, position, parent.depth + 1, parent.cost + 1)
+        without_trap.append(child)
+
+  new_nodes = with_trap + without_trap
+
+  if not priority_queue:
+    while new_nodes:
+      node = new_nodes.pop()
+      new_priority_queue.append(node)
+    new_priority_queue.reverse()
+    return new_priority_queue
+
+  else:
+    if priority_queue:
+      old_node = priority_queue.pop()
+    else:
+      old_node = None
+
+    if new_nodes:
+      new_node = new_nodes.pop()
+    else:
+      new_node = None
+
+    while True:
+      if old_node:
+        old_node_cost = old_node.cost
+      else:
+        old_node_cost = 1000
+      if new_node:
+        new_node_cost = new_node.cost
+      else:
+        new_node_cost = 1000
+
+      if old_node_cost <= new_node_cost and old_node:
+        new_priority_queue.append(old_node)
+        if priority_queue:
+          old_node = priority_queue.pop()
+        else:
+          old_node = None
+
+      elif new_node:
+        new_priority_queue.append(new_node)
+        if new_nodes:
+          new_node = new_nodes.pop()
+        else:
+          new_node = None
+
+      if old_node is None and new_node is None:
+        new_priority_queue.reverse()
+        return new_priority_queue
+
+
 # Depth First Search
 def dfs():
-  global current_position, cost_of_solution, visited_squares
+  global current_position, visited_squares
   frontier = []  # Stack for DFS. Use append() and pop()
   initial_node = Node(None, current_position)
   frontier.append(initial_node)
@@ -143,12 +212,13 @@ def dfs():
       print("Frontier is empty. There is no solution")
       return None
     parent = frontier.pop()
-    expanded_nodes.append(parent.position)
+    expanded_nodes.append([parent.position[0] + 1, parent.position[1] + 1])
     if is_goal(parent.position):
       find_solution_path(parent)
       return
     visited_squares.append(parent.position)
     p_positions = possible_positions(parent.position)
+    p_positions.reverse()
     for position in p_positions:
       if not is_visited(position):
         child = Node(parent, position, parent.depth + 1)
@@ -157,7 +227,7 @@ def dfs():
 
 # Breadth First Search
 def bfs():
-  global current_position, cost_of_solution, visited_squares
+  global current_position, visited_squares
   frontier = queue.Queue()  # Stack for DFS. Use append() and pop()
   initial_node = Node(None, current_position)
   frontier.put(initial_node)
@@ -166,13 +236,12 @@ def bfs():
       print("Frontier is empty. There is no solution")
       return None
     parent = frontier.get()
-    expanded_nodes.append(parent.position)
+    expanded_nodes.append([parent.position[0] + 1, parent.position[1] + 1])
     if is_goal(parent.position):
       find_solution_path(parent)
       return
     visited_squares.append(parent.position)
     p_positions = possible_positions(parent.position)
-    p_positions.reverse()  # To get moves according to ordered directions
     for position in p_positions:
       if not is_visited(position):
         child = Node(parent, position, parent.depth + 1)
@@ -181,7 +250,7 @@ def bfs():
 
 # Iterative Deepening Search
 def ids():
-  global current_position, cost_of_solution, visited_squares
+  global current_position, visited_squares
   initial_node = Node(None, current_position)
   for depth in range(maze_length * maze_length):
     reset_variables()
@@ -189,13 +258,12 @@ def ids():
     frontier.put(initial_node)
     while not frontier.empty():
       parent = frontier.get()
-      expanded_nodes.append(parent.position)
+      expanded_nodes.append([parent.position[0] + 1, parent.position[1] + 1])
       if is_goal(parent.position):
         find_solution_path(parent)
         return
       visited_squares.append(parent.position)
       p_positions = possible_positions(parent.position)
-      p_positions.reverse()
       if parent.depth < depth:
         for position in p_positions:
           if not is_visited(position):
@@ -203,8 +271,25 @@ def ids():
             frontier.put(child)
 
 
+# Uniform Cost Search
 def ucs():
-  pass
+  global current_position
+  priority_queue = []  # To keep least cost neighbour squares in IDS
+  initial_node = Node(None, current_position)
+  priority_queue.append(initial_node)
+  while True:
+    if not priority_queue:
+      print("Frontier is empty. There is no solution")
+      return None
+    parent = priority_queue.pop()
+    expanded_nodes.append([parent.position[0] + 1, parent.position[1] + 1])
+    if is_goal(parent.position):
+      find_solution_path(parent)
+      return
+    visited_squares.append(parent.position)
+    p_positions = possible_positions(parent.position)
+    p_positions.reverse()
+    priority_queue = order_frontier_by_cost(parent, priority_queue, p_positions)
 
 
 # TODO: Greedy Best First Search
@@ -228,7 +313,7 @@ def main():
   # dfs()
   # bfs()
   # ids()
-  # ucs()
+  ucs()
 
   """
   print("a. Depth First Search\n" +
