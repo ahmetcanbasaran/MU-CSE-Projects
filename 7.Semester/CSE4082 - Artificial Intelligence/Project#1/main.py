@@ -2,7 +2,7 @@
 #                                           #
 #     CSE4082 - Artificial Intelligence     #
 #                Project #1                 #
-#       Oguzhan BOLUKBAS - 150114022        #
+#       150114022 - Oguzhan BOLUKBAS        #
 #                                           #
 #############################################
 import queue
@@ -30,6 +30,7 @@ expanded_nodes = []  # To keep expanded nodes
 visited_squares = []  # To keep visited squares
 
 
+# To read squares of the maze from input file
 def read_squares(path):
   global maze_length
   fp = open(path, "r")
@@ -40,6 +41,7 @@ def read_squares(path):
   fp.close()
 
 
+# To read walls of the maze from input file
 def read_walls(path):
   fp = open(path, "r")
   for cnt, line in enumerate(fp):  # To read file line by line
@@ -53,78 +55,84 @@ def read_walls(path):
   fp.close()
 
 
+# To define square types of the maze from input file
 def find_square_features():
   global current_position, starting_position
-  r, c = -1, -1
+  r, c = -1, -1  # r keeps row, c keeps column index
   for row in squares:
     r += 1
     c = -1
     for letter in row:
       c += 1
-      if letter == "S":
+      if letter == "S":  # Starting position
         current_position = [r, c]
         starting_position = [r, c]
-      elif letter == "G":
+      elif letter == "G":  # Goal positions
         goal_positions.append([r, c])
-      elif letter == "T":
+      elif letter == "T":  # Trap posiitons
         trap_positions.append([r, c])
 
 
 # To find possible squares the agent can move
 def possible_positions(position):
-  pos_moves = []
+  pos_moves = []  # To store possible moves
   x, y = position[0], position[1]  # Current coordinates
   if position[1] != maze_length - 1:  # EAST
-    if walls[x][y][0] == "O":
-      pos_moves.append([position[0], position[1] + 1])
+    if walls[x][y][0] == "O":  # 'O' means there is no wall between current position and EAST side square
+      pos_moves.append([position[0], position[1] + 1])  # To add possible movement to the EAST direction from the current position
   if position[0] != maze_length - 1:  # SOUTH
-    if walls[x][y][1] == "O":
-      pos_moves.append([position[0] + 1, position[1]])
+    if walls[x][y][1] == "O":  # 'O' means there is no wall between current position and SOUTH side square
+      pos_moves.append([position[0] + 1, position[1]])  # To add possible movement to the SOUTH direction from the current position
   if position[1] != 0:  # WEST
-    if walls[x][y][2] == "O":
-      pos_moves.append([position[0], position[1] - 1])
+    if walls[x][y][2] == "O":  # 'O' means there is no wall between current position and WEST side square
+      pos_moves.append([position[0], position[1] - 1])  # To add possible movement to the WEST direction from the current position
   if position[0] != 0:  # NORTH
-    if walls[x][y][3] == "O":
-      pos_moves.append([position[0] - 1, position[1]])
+    if walls[x][y][3] == "O":  # 'O' means there is no wall between current position and NORTH side square
+      pos_moves.append([position[0] - 1, position[1]])  # To add possible movement to the NORTH direction from the current position
   return pos_moves
 
 
+# To check whether this position is visited or not
 def is_visited(position):
   global visited_squares
   for pos in visited_squares:
-    if pos[0] == position[0] and pos[1] == position[1]:
-      return True
-  return False
+    if pos[0] == position[0] and pos[1] == position[1]:  # To check whether this square is visited or not
+      return True  # Yes, visited before
+  return False  # No, never visited
 
 
+# To check whether this position is goal or not
 def is_goal(position):
   global goal_positions
   for pos in goal_positions:
-    if pos[0] == position[0] and pos[1] == position[1]:
-      return True
-  return False
+    if pos[0] == position[0] and pos[1] == position[1]:  # To check whether this square is goal or not
+      return True  # Yes, it is goal position
+  return False  # No, not goal
 
 
+# To check whether this position is trap or not
 def is_trap(position):
   global trap_positions
   for pos in trap_positions:
-    if pos[0] == position[0] and pos[1] == position[1]:
-      return True
-  return False
+    if pos[0] == position[0] and pos[1] == position[1]:  # To check whether this square is trap or not
+      return True  # Yes, this square is trapped
+  return False  # No, it is safe
 
 
+# To print solution path when program ends
 def find_solution_path(node):
   global solution_path, cost_of_solution
   while node:
     if is_trap(node.position):
-      cost_of_solution += 7
+      cost_of_solution += 7  # Trap square cost
     else:
-      cost_of_solution += 1
+      cost_of_solution += 1  # Normal square cost
     solution_path.append([node.position[0] + 1, node.position[1] + 1])
     node = node.parent
   solution_path.reverse()
 
 
+# To print a queue for visualization
 def print_queue(queue):
   positions = []
   for node in queue:
@@ -282,89 +290,89 @@ def order_for_a_star(parent, priority_queue, p_positions, position_and_distances
 
 # Depth First Search
 def dfs():
-  global current_position, visited_squares
+  global current_position, visited_squares  # To keep current position of the agent in the maze and visited squares' positions
   frontier = []  # Stack for DFS. Use append() and pop()
   initial_node = Node(None, current_position)
   frontier.append(initial_node)
   while True:
     parent = frontier.pop()
     expanded_nodes.append([parent.position[0] + 1, parent.position[1] + 1])
-    if is_goal(parent.position):
+    if is_goal(parent.position):  # To check whether this position is goal or not
       find_solution_path(parent)
       return
     visited_squares.append(parent.position)
-    p_positions = possible_positions(parent.position)
+    p_positions = possible_positions(parent.position)  # To get all possible positions for the current position
     p_positions.reverse()
     for position in p_positions:
-      if not is_visited(position):
+      if not is_visited(position):  # To check whether this square is visited or not
         child = Node(parent, position, parent.depth + 1)
         frontier.append(child)
 
 
 # Breadth First Search
 def bfs():
-  global current_position, visited_squares
+  global current_position, visited_squares  # To keep current position of the agent in the maze and visited squares' positions
   frontier = queue.Queue()  # Queue for BFS. Use put() and get()
   initial_node = Node(None, current_position)
   frontier.put(initial_node)
   while True:
     parent = frontier.get()
     expanded_nodes.append([parent.position[0] + 1, parent.position[1] + 1])
-    if is_goal(parent.position):
+    if is_goal(parent.position):  # To check whether this position is goal or not
       find_solution_path(parent)
       return
     visited_squares.append(parent.position)
-    p_positions = possible_positions(parent.position)
+    p_positions = possible_positions(parent.position)  # To get all possible positions for the current position
     for position in p_positions:
-      if not is_visited(position):
+      if not is_visited(position):  # To check whether this square is visited or not
         child = Node(parent, position, parent.depth + 1)
         frontier.put(child)
 
 
 # Iterative Deepening Search
 def ids():
-  global current_position, visited_squares
+  global current_position, visited_squares  # To keep current position of the agent in the maze and visited squares' positions
   initial_node = Node(None, current_position)
-  for depth in range(maze_length * maze_length):
-    reset_variables()
+  for depth in range(maze_length * maze_length):  # To traverse in all depth with increasing depth one by one
+    reset_variables()  # To reset all stored knowledge for previous depth level
     frontier = [initial_node]
     while frontier:
       parent = frontier.pop()
       expanded_nodes.append([parent.position[0] + 1, parent.position[1] + 1])
-      if is_goal(parent.position):
+      if is_goal(parent.position):  # To check whether this position is goal or not
         find_solution_path(parent)
         return
       visited_squares.append(parent.position)
-      p_positions = possible_positions(parent.position)
+      p_positions = possible_positions(parent.position)  # To get all possible positions for the current position
       p_positions.reverse()
       if parent.depth < depth:
         for position in p_positions:
-          if not is_visited(position):
+          if not is_visited(position):  # To check whether this square is visited or not
             child = Node(parent, position, parent.depth + 1)
             frontier.append(child)
 
 
 # Uniform Cost Search
 def ucs():
-  global current_position
+  global current_position  # To keep current position of the agent in the maze
   priority_queue = []  # To keep least cost neighbour squares in IDS
   initial_node = Node(None, current_position)
   priority_queue.append(initial_node)
   while True:
     parent = priority_queue.pop()
     expanded_nodes.append([parent.position[0] + 1, parent.position[1] + 1])
-    if is_goal(parent.position):
+    if is_goal(parent.position):  # To check whether this position is goal or not
       find_solution_path(parent)
       return
     visited_squares.append(parent.position)
-    p_positions = possible_positions(parent.position)
+    p_positions = possible_positions(parent.position)  # To get all possible positions for the current position
     p_positions.reverse()
-    priority_queue = order_frontier_by_cost(parent, priority_queue, p_positions)
+    priority_queue = order_frontier_by_cost(parent, priority_queue, p_positions)  # To order the frontier list in order to get low cost movement in the next movement
 
 
 # Greedy Best First Search
 def gbfs():
-  global current_position, visited_squares
+  global current_position, visited_squares  # To keep current position of the agent in the maze and visited squares' positions
   frontier = []  # Stack for GBFS
   initial_node = Node(None, current_position)
   frontier.append(initial_node)
@@ -372,18 +380,18 @@ def gbfs():
   while True:
     parent = frontier.pop()
     expanded_nodes.append([parent.position[0] + 1, parent.position[1] + 1])
-    if is_goal(parent.position):
+    if is_goal(parent.position):  # To check whether this position is goal or not
       find_solution_path(parent)
       return
     visited_squares.append(parent.position)
-    p_positions = possible_positions(parent.position)
+    p_positions = possible_positions(parent.position)  # To get all possible positions for the current position
     p_positions.reverse()
     position_and_distances = []
     for position in p_positions:
-      if not is_visited(position):
+      if not is_visited(position):  # To check whether this square is visited or not
         distance = find_distance_to_goals(position)
         position_and_distances.append([position, distance])
-    for dist in range(1000, 0, -1):
+    for dist in range(1000, 0, -1):  # This for loop appends the new nodes to frontier according to their cost
       for pos_and_dist in position_and_distances:
         if dist == pos_and_dist[1]:
           child = Node(parent, pos_and_dist[0], parent.depth + 1)
@@ -392,33 +400,33 @@ def gbfs():
 
 # A* Heuristic Search
 def ashs():
-  global current_position
+  global current_position  # To keep current position of the agent in the maze
   priority_queue = []  # To keep least cost neighbour squares in IDS
   initial_node = Node(None, current_position)
   priority_queue.append(initial_node)
   while True:
     parent = priority_queue.pop()
     expanded_nodes.append([parent.position[0] + 1, parent.position[1] + 1])
-    if is_goal(parent.position):
+    if is_goal(parent.position):  # To check whether this position is goal or not
       find_solution_path(parent)
       return
     visited_squares.append(parent.position)
-    p_positions = possible_positions(parent.position)
+    p_positions = possible_positions(parent.position)  # To get all possible positions for the current position
     p_positions.reverse()
     position_and_distances = []
     for position in p_positions:
-      if not is_visited(position):
+      if not is_visited(position):  # To check whether this square is visited or not
         distance = find_distance_to_goals(position)
         position_and_distances.append([position, distance])
     priority_queue = order_for_a_star(parent, priority_queue, p_positions, position_and_distances)
 
 
 def main():
-  input_squares_path = "./inputs/maze_1/squares.txt"
-  input_walls_path = "./inputs/maze_1/walls.txt"
-  read_squares(input_squares_path)
-  read_walls(input_walls_path)
-  find_square_features()
+  input_squares_path = "./inputs/maze_1/squares.txt"  # Path of the square.txt filewhich stores square letters
+  input_walls_path = "./inputs/maze_1/walls.txt"  # Path of the walls.txt file which stores walls between squares
+  read_squares(input_squares_path)  # To read a file which contains square letters
+  read_walls(input_walls_path)    # To read a file which contains wall positions
+  find_square_features()  # To understand which letter means what like G means Goal, when it reach the program ends succesfully
 
   print("\nChoose a search method from below:\n" +
         "a. Depth First Search\n" +
@@ -430,22 +438,22 @@ def main():
   method = input("Choose a search method: ")
   if method == 'a':
     print("\nSearch method is: Depth First Search")
-    dfs()
+    dfs()  # To run DFS Algorithm
   elif method == 'b':
     print("\nSearch method is: Breadth First Search")
-    bfs()
+    bfs()  # To run BFS Algorithm
   elif method == 'c':
     print("\nSearch method is: Iterative Deepening Search")
-    ids()
+    ids()  # To run IDS Algorithm
   elif method == 'd':
     print("\nSearch method is: Uniform Cost Search")
-    ucs()
+    ucs()  # To run UCS Algorithm
   elif method == 'e':
     print("\nSearch method is: Greedy Best First Search")
-    gbfs()
+    gbfs()  # To run GBFS Algorithm
   elif method == 'f':
     print("\nSearch method is: A* Heuristic Search")
-    ashs()
+    ashs()  # To run A*HS Algorithm
 
   # To print result
   print("Cost of the solution: \n", cost_of_solution, "\n")
