@@ -8,22 +8,40 @@
 
 import sys
 import socket
-import thread
 
+hotels_names = []
+hotels_capacity = []
 
-def listen_to_client(s, c):
-  message = c.recv(32768)  # should receive request from client. (GET ....)
+def reservation(c):
+  message = c.recv(32768)
   print "\nReceived message: \n", message
 
-  while True:
-    request = message.split(" ")
-    response = ("I am hotel")
-    c.send(response)
-    print "Sent message: \n", response
-    break
+  message = message.split()
+
+  hotel_name = message[0]
+  num_of_travelers = message[1]
+
+  response = None
+  cnt = 0
+  for hotel in hotels_names:
+    if hotel_name == hotel:
+      response = "Name: " + hotel + " - " + "Remain capacity: " + str(hotels_capacity[cnt] - int(num_of_travelers))
+    else:
+      response = "Hotel not exists"
+    cnt += 1
+  c.send(response)
+  c.close()
+  print "Sent message: \n", response
 
 
 def main():
+
+  hotels_names.append("Hotel-1")
+  hotels_capacity.append(100)
+
+  hotels_names.append("Hotel-2")
+  hotels_capacity.append(150)
+
   try:
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     print 'Socket Generated'
@@ -52,7 +70,7 @@ def main():
       c, addr = s.accept()  # Server waits here
       print "Connected with", addr[0], ":", str(addr[1])
 
-      thread.start_new_thread(listen_to_client, (s, c))
+      reservation(c)
 
     except KeyboardInterrupt:
       s.close()

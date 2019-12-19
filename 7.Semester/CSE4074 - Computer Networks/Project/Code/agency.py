@@ -15,7 +15,6 @@ import thread
 def proxy_server(s, c):
   request = c.recv(32768)  # should receive request from client. (GET ....)
   reservation_info = request.split(" ")
-  message = reservation_info
 
   arrival_date = reservation_info[0]
   departure_date = reservation_info[1]
@@ -29,40 +28,40 @@ def proxy_server(s, c):
   print "airline: ", airline
   print "number_of_travelers: ", number_of_travelers
 
-  try:
-    # To connect to server via TCP connection
-    s2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    print 'Socket Generated'
+  try:  # To connect to server via TCP connection
+    s_hotels = socket.socket(socket.AF_INET, socket.SOCK_STREAM);  print 'Hotel socket generated'
   except socket.error, msg:
     print 'Failed to create socket. Error code: ' + str(msg[0]) + ' , Error message : ' + msg[1]
     sys.exit()
 
-  PORT = 8888
-  HOST = 'localhost'
+  hotels_port = 8888
+  airlines_port = 9999
+  host = 'localhost'
 
   try:
-    s2.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    s2.connect((HOST, PORT))  # To connect to the server on local computer
-    print 'Socket connected to ' + HOST
+    s_hotels.connect((host, hotels_port))  # To connect to the server on local computer
   except socket.error, msg:
-    print 'Failed to create socket. Error code: ' + str(msg[0]) + ' , Error message : ' + msg[1]
-    s2.close()
+    print 'Failed to create socket2ada. Error code: ' + str(msg[0]) + ' , Error message : ' + msg[1]
+    s_hotels.close()
     return
 
   try:
-    new_request = hotel + " " + number_of_travelers
-    s2.send(new_request)  # To send the obtained message
-    print "\nSent message to the web server: ", new_request
+    hotels_request = hotel + " " + number_of_travelers
+    airlines_request = airline + " " + number_of_travelers
+    s_hotels.send(hotels_request)  # To send the hotels
+    print "\nSent message to the hotels: ", hotels_request
+    print "\nSent message to the airlines: ", airlines_request
   except socket.error:
     print 'Send failed'
-    s2.close()
+    s_hotels.close()
     return
 
-  response = s2.recv(32768)  # receive data from the server
-  print "\nReceived message from the web server: ", response[:61]
+  hotels_response = s_hotels.recv(32768)  # receive data from the server
+  print "\nReceived message from the hotels: ", hotels_response
 
-  s2.close()  # To close the connection to web server
+  s_hotels.close()  # To close the connection to hotels
 
+  response = "h: " + hotels_response
   c.send(response)  # To reply the response of the client
   print "\nSent message to the client: ", response
   c.close()
@@ -77,18 +76,18 @@ def main():
     print 'Failed to create socket. Error code: ' + str(msg[0]) + ' , Error message : ' + msg[1]
     sys.exit()
 
-  HOST = ''  # Symbolic name meaning all available interfaces
-  PORT = 1418  # Arbitrary non-privileged port
+  host = ''  # Symbolic name meaning all available interfaces
+  port = 1418  # Arbitrary non-privileged port
 
   try:
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    s.bind((HOST, PORT))  # To bind to the port
+    s.bind((host, port))  # To bind to the port
   except socket.error, msg:
     print 'Bind failed. Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
     sys.exit()
 
   print 'Socket bind complete'
-  print 'Starting Proxy Server on', PORT
+  print 'Starting Proxy Server on', port
 
   # To put the socket into listening mode
   s.listen(5)  # To wait for client connection.
