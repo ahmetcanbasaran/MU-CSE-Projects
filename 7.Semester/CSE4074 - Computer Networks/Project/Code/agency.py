@@ -46,8 +46,8 @@ def proxy_server(s, c):
     return
 
   try:
-    hotels_request = hotel + " " + number_of_travelers
-    airlines_request = airline + " " + number_of_travelers
+    hotels_request = hotel + " " + number_of_travelers + " " + departure_date
+    airlines_request = airline + " " + number_of_travelers + " " + arrival_date
     s_hotels.send(hotels_request)  # To send the hotels
     print "\nSent message to the hotels: ", hotels_request
     print "\nSent message to the airlines: ", airlines_request
@@ -61,7 +61,7 @@ def proxy_server(s, c):
 
   s_hotels.close()  # To close the connection to hotels
 
-  response = "h: " + hotels_response
+  response = "Hotel response: " + hotels_response
   c.send(response)  # To reply the response of the client
   print "\nSent message to the client: ", response
   c.close()
