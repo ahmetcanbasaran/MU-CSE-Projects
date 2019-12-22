@@ -28,8 +28,8 @@ def run_program():
 
   s.sendall(message)  # Send the whole string
   print s.recv(32768)  # receive data from the server
-  s.close()
-  sys.exit()
+  master.destroy()  # To close tkinter in a properly way
+
 
 try:
   s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # To generate an AF_INET, STREAM socket (TCP)
