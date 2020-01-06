@@ -242,4 +242,3 @@ cv_error(classifiers_one_vs_one, features_train_one_vs_one, Cs=[0.0001, 0.001, 0
 print("\n\nProblem 9 and problem 10:\n")
 in_out_sample_errors(classifiers_one_vs_one, features_train_one_vs_one, features_test_one_vs_one,
                      Cs=[0.01, 1., 100., 1.*10**4, 1.*10**6], kernel='rbf', gamma=1.0)
-
