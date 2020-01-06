@@ -1,119 +1,119 @@
-import numpy as np  
-from random import randrange,uniform
+import numpy as np
+from random import randrange, uniform
 
-def generateRandomPop(popSize,numberOfNodes):
-    populationArray=[]
-    for i in range(0,popSize):
-        stringI=[]
-        for j in range(0,numberOfNodes):
-            rand=uniform(0,1)
-            if(rand<0.5):
-                stringI.append(0)
-            else:
-                stringI.append(1)
-        populationArray.append(stringI)
-    return populationArray
+def generate_random_pop(pop_size, number_of_nodes):
+  population_array = []
+  for i in range(0, pop_size):
+    string_i = []
+    for j in range(0, number_of_nodes):
+      rand = uniform(0, 1)
+      if(rand<0.5):
+        string_i.append(0)
+      else:
+        string_i.append(1)
+    population_array.append(string_i)
+  return population_array
 
-def repair(populationArray):
-    return populationArray
+def repair(population_array):
+  return population_array
 
-def matchingPoolTournement(populationArray,weightArray):
-    popSize=len(populationArray)
-    matchingArray=[]
-    for i in range(0,popSize):
-        oldfitness=100000000
-        winner=0
-        for j in range(0,10):
-            rand=randrange(0,popSize)
-            fitness=0
-            for k in range(0,len(populationArray[rand])):
-                fitness+=populationArray[rand][k]*weightArray[k]        
-            if oldfitness>fitness:
-                oldfitness=fitness
-                winner=rand
-        matchingArray.append(populationArray[winner])        
-    return matchingArray
+def matching_pool_tournement(population_array, weight_array):
+  pop_size = len(population_array)
+  matching_array = []
+  for i in range(0, pop_size):
+    oldfitness = 100000000
+    winner = 0
+    for j in range(0, 10):
+      rand = randrange(0, pop_size)
+      fitness = 0
+      for k in range(0, len(population_array[rand])):
+        fitness += population_array[rand][k]*weight_array[k]
+      if oldfitness>fitness:
+        oldfitness = fitness
+        winner = rand
+    matching_array.append(population_array[winner])
+  return matching_array
 
-def crossover(matchingArray,crossoverProb,numberOfNodes):
-    popSize=len(matchingArray)
-    crossoverredArray=[]
-    i=-1
-    for j in range(0,popSize):
-        i+=2
-        rand=uniform(0,1)
-        if(rand<crossoverProb):
-            rand2=randrange(0,numberOfNodes)
-            child1=matchingArray[i-1][:rand2] + matchingArray[i][rand2:]
-            child2=matchingArray[i][:rand2] + matchingArray[i-1][rand2:]
-            crossoverredArray.append(child1)
-            crossoverredArray.append(child2)
-        else:
-            crossoverredArray.append(matchingArray[i-1])
-            crossoverredArray.append(matchingArray[i])
-        if(i==popSize-1):
-            break
-    return crossoverredArray
+def crossover(matching_array, crossover_prob, number_of_nodes):
+  pop_size = len(matching_array)
+  crossoverred_array = []
+  i = -1
+  for j in range(0, pop_size):
+    i += 2
+    rand = uniform(0, 1)
+    if rand<crossover_prob:
+      rand2 = randrange(0, number_of_nodes)
+      child1 = matching_array[i-1][:rand2] + matching_array[i][rand2:]
+      child2 = matching_array[i][:rand2] + matching_array[i-1][rand2:]
+      crossoverred_array.append(child1)
+      crossoverred_array.append(child2)
+    else:
+      crossoverred_array.append(matching_array[i-1])
+      crossoverred_array.append(matching_array[i])
+    if i == pop_size-1:
+      break
+  return crossoverred_array
 
-def mutateAndBestfit(crossoverredArray,mutationProb,numberOfNodes,weightArray):
-    popSize=len(crossoverredArray)
-    bestfitness=10000000
-    for i in range(0,popSize):
-        fitness=0
-        for j in range(0,numberOfNodes):
-            rand=uniform(0,1)
-            if(rand<mutationProb):
-               crossoverredArray[i][j]=1-crossoverredArray[i][j]
-            fitness+=crossoverredArray[i][j]*weightArray[j]
-        if(bestfitness>fitness):
-            bestfitness=fitness
-    return crossoverredArray,bestfitness
+def mutate_and_best_fit(crossoverred_array, mutation_prob, number_of_nodes, weight_array):
+  pop_size = len(crossoverred_array)
+  best_fitness = 10000000
+  for i in range(0, pop_size):
+    fitness = 0
+    for j in range(0, number_of_nodes):
+      rand = uniform(0, 1)
+      if rand<mutation_prob:
+        crossoverred_array[i][j] = 1-crossoverred_array[i][j]
+      fitness += crossoverred_array[i][j]*weight_array[j]
+    if best_fitness>fitness:
+      best_fitness = fitness
+  return crossoverred_array, best_fitness
 
+"""
+# To get values of variables from the user
+file_name = input("Name of the graph file: ")
+number_of_gen = eval(input("Number of generations: "))
+number_of_pop = eval(input("Population size: "))
+crossover_prob = eval(input("Crossover probability: "))
+mutation_prob = eval(input("Mutation probability: "))
+"""
 
-    
-    
-fileName="003.txt"
-numberOfGen=100
-numberOfPop=100
-crossoverProb=0.5
-mutationProb=0.05
+file_name = "003.txt"
+number_of_gen = 100
+number_of_pop = 100
+crossover_prob = 0.5
+mutation_prob = 0.05
 
-i=0
-numberOfNodes=0
-numberOfEdges=0
-weightArray=[]
+i = 0
+number_of_nodes = 0  # To keep number of nodes
+number_of_edges = 0  # To keep number of edges
+weight_array = []  # To keep weight values of vertices
+adjacency_matrix = None  # To fill adjacency matrix with zeros
 
-with open(fileName,'r') as f:
-  x=f.readlines()
-  for line in x:
-      i+=1
-      if(i==1):
-        numberOfNodes = int(line) 
-      elif(i==2):
-        numberOfEdges= float(line)
-        break
-print(numberOfNodes,numberOfEdges)
+# To get information from the input file
+with open("graphs/" + file_name, 'r') as f:
+  lines = f.readlines()  # To get all lines from file
+  for line in lines:  # To handle input file line by line
+    if i == 0:  # Number of nodes is written in the first line
+      number_of_nodes = int(line)
+      adjacency_matrix = np.zeros((number_of_nodes, number_of_nodes))
+    elif i == 1:  # Number of edges is written in the second line
+      number_of_edges = int(float(line))
+    if 2 <=  i < number_of_nodes+2: # List of node weights is written in the continuation lines
+      n = line.split(' ')  # To get node numbers and their weights seperately
+      weight_array.append(float((n[1][0]+'.'+n[1][2]+n[1][3])))  # To add them into the weights list
+    elif number_of_nodes+2 <= i:
+      n = line.split(' ')  # To get node numbers and their adjancent nodes seperately
+      adjacency_matrix[int(n[0])][int(n[1])] = 1  # To assign contiguity of nodes with putting 1 into the adj. matrix
+    i +=  1
 
-i=0
-adjacencyMatrix=np.zeros((numberOfNodes,numberOfNodes))
-with open(fileName,'r') as f:
-  x=f.readlines()
-  for line in x:
-    i+=1
-    if(i>2 and i<=numberOfNodes+2):
-      n=line.split(' ')
-      weightArray.append(float((n[1][0]+'.'+n[1][2]+n[1][3])))
-    elif(i>2 and i>numberOfNodes+2):
-      n=line.split(' ')
-      adjacencyMatrix[int(n[0])][int(n[1])]=1
+population_array = generate_random_pop(number_of_pop, number_of_nodes)
+population_array = repair(population_array)
 
-populationArray=generateRandomPop(numberOfPop,numberOfNodes)
-populationArray=repair(populationArray)
-i=0
-while(i!=numberOfGen):
-    i+=1
-    matchingArray=matchingPoolTournement(populationArray,weightArray)
-    crosseverredArray=crossover(matchingArray,crossoverProb,numberOfNodes)
-    mutationedArray,bestfitness=mutateAndBestfit(crosseverredArray,mutationProb,numberOfNodes,weightArray)
-    populationArray=repair(mutationedArray)
-    print(bestfitness)
-
+i = 0
+while i !=  number_of_gen:
+  matching_array = matching_pool_tournement(population_array, weight_array)
+  crosseverred_array = crossover(matching_array, crossover_prob, number_of_nodes)
+  mutationed_array, best_fitness = mutate_and_best_fit(crosseverred_array, mutation_prob, number_of_nodes, weight_array)
+  population_array = repair(mutationed_array)
+  print(best_fitness)
+  i +=  1
