@@ -1,21 +1,21 @@
 import numpy as np
-from random import randrange, uniform
+from random import randrange, uniform, shuffle
+
 
 def generate_random_pop(pop_size, number_of_nodes):
-  population_array = []
+  population = []
   for i in range(0, pop_size):
-    string_i = []
+    offspring = []
     for j in range(0, number_of_nodes):
-      rand = uniform(0, 1)
-      if(rand<0.5):
-        string_i.append(0)
-      else:
-        string_i.append(1)
-    population_array.append(string_i)
-  return population_array
+      offspring.append(j)
+    shuffle(offspring)
+    population.append(offspring)
+  return population
 
-def repair(population_array):
-  return population_array
+
+def repair(mutationed_array):
+  return mutationed_array
+
 
 def matching_pool_tournement(population_array, weight_array):
   pop_size = len(population_array)
@@ -33,6 +33,7 @@ def matching_pool_tournement(population_array, weight_array):
         winner = rand
     matching_array.append(population_array[winner])
   return matching_array
+
 
 def crossover(matching_array, crossover_prob, number_of_nodes):
   pop_size = len(matching_array)
@@ -54,6 +55,7 @@ def crossover(matching_array, crossover_prob, number_of_nodes):
       break
   return crossoverred_array
 
+
 def mutate_and_best_fit(crossoverred_array, mutation_prob, number_of_nodes, weight_array):
   pop_size = len(crossoverred_array)
   best_fitness = 10000000
@@ -68,52 +70,57 @@ def mutate_and_best_fit(crossoverred_array, mutation_prob, number_of_nodes, weig
       best_fitness = fitness
   return crossoverred_array, best_fitness
 
-"""
-# To get values of variables from the user
-file_name = input("Name of the graph file: ")
-number_of_gen = eval(input("Number of generations: "))
-number_of_pop = eval(input("Population size: "))
-crossover_prob = eval(input("Crossover probability: "))
-mutation_prob = eval(input("Mutation probability: "))
-"""
 
-file_name = "003.txt"
-number_of_gen = 100
-number_of_pop = 100
-crossover_prob = 0.5
-mutation_prob = 0.05
+def main():
+  """
+  # To get values of variables from the user
+  file_name = input("Name of the graph file: ")
+  number_of_gen = eval(input("Number of generations: "))
+  number_of_pop = eval(input("Population size: "))
+  crossover_prob = eval(input("Crossover probability: "))
+  mutation_prob = eval(input("Mutation probability: "))
+  """
 
-i = 0
-number_of_nodes = 0  # To keep number of nodes
-number_of_edges = 0  # To keep number of edges
-weight_array = []  # To keep weight values of vertices
-adjacency_matrix = None  # To fill adjacency matrix with zeros
+  file_name = "003.txt"
+  number_of_gen = 100
+  number_of_pop = 100
+  crossover_prob = 0.5
+  mutation_prob = 0.05
 
-# To get information from the input file
-with open("graphs/" + file_name, 'r') as f:
-  lines = f.readlines()  # To get all lines from file
-  for line in lines:  # To handle input file line by line
-    if i == 0:  # Number of nodes is written in the first line
-      number_of_nodes = int(line)
-      adjacency_matrix = np.zeros((number_of_nodes, number_of_nodes))
-    elif i == 1:  # Number of edges is written in the second line
-      number_of_edges = int(float(line))
-    if 2 <=  i < number_of_nodes+2: # List of node weights is written in the continuation lines
-      n = line.split(' ')  # To get node numbers and their weights seperately
-      weight_array.append(float((n[1][0]+'.'+n[1][2]+n[1][3])))  # To add them into the weights list
-    elif number_of_nodes+2 <= i:
-      n = line.split(' ')  # To get node numbers and their adjancent nodes seperately
-      adjacency_matrix[int(n[0])][int(n[1])] = 1  # To assign contiguity of nodes with putting 1 into the adj. matrix
+  i = 0
+  number_of_nodes = None  # To keep number of nodes
+  number_of_edges = None  # To keep number of edges
+  weight_array = []  # To keep weight values of vertices
+  adjacency_matrix = None  # To fill adjacency matrix with zeros
+
+  # To get information from the input file
+  with open("graphs/" + file_name, 'r') as f:
+    lines = f.readlines()  # To get all lines from file
+    for line in lines:  # To handle input file line by line
+      if i == 0:  # Number of nodes is written in the first line
+        number_of_nodes = int(line)
+        adjacency_matrix = np.zeros((number_of_nodes, number_of_nodes))
+      elif i == 1:  # Number of edges is written in the second line
+        number_of_edges = int(float(line))
+      if 2 <=  i < number_of_nodes+2: # List of node weights is written in the continuation lines
+        n = line.split(' ')  # To get node numbers and their weights seperately
+        weight_array.append(float((n[1][0]+'.'+n[1][2]+n[1][3])))  # To add them into the weights list
+      elif number_of_nodes+2 <= i:
+        n = line.split(' ')  # To get node numbers and their adjancent nodes seperately
+        adjacency_matrix[int(n[0])][int(n[1])] = 1  # To assign contiguity of nodes with putting 1 into the adj. matrix
+      i +=  1
+
+  population_array = generate_random_pop(number_of_pop, number_of_nodes)
+
+  i = 0
+  while i !=  number_of_gen:
+    matching_array = matching_pool_tournement(population_array, weight_array)
+    crosseverred_array = crossover(matching_array, crossover_prob, number_of_nodes)
+    mutationed_array, best_fitness = mutate_and_best_fit(crosseverred_array, mutation_prob, number_of_nodes, weight_array)
+    population_array = repair(mutationed_array)
+    print(best_fitness)
     i +=  1
 
-population_array = generate_random_pop(number_of_pop, number_of_nodes)
-population_array = repair(population_array)
 
-i = 0
-while i !=  number_of_gen:
-  matching_array = matching_pool_tournement(population_array, weight_array)
-  crosseverred_array = crossover(matching_array, crossover_prob, number_of_nodes)
-  mutationed_array, best_fitness = mutate_and_best_fit(crosseverred_array, mutation_prob, number_of_nodes, weight_array)
-  population_array = repair(mutationed_array)
-  print(best_fitness)
-  i +=  1
+if __name__ == "__main__":
+  main()
