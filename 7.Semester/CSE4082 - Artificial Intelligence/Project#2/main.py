@@ -33,8 +33,8 @@ def repair(population):
   fit_value = 0
   for i in range(0, number_of_pop):  # To process each offspring
     repaired = False
+    temp_checklist = checklist.copy()
     while not repaired:
-      temp_checklist = checklist.copy()
       for j in range(0, number_of_nodes):  # To check each node one by one
         if population[i][j] == 1:  # If this node exist in population
           deleted_list = []
@@ -52,10 +52,10 @@ def repair(population):
 
       else:  # This means every edges are not covered
         changes = []
-        print('uzunluk2', len(temp_checklist))
+        print("uzunluk2", len(temp_checklist))
         for k in temp_checklist:
-          changes.append(a[0])
-          changes.append(a[1])
+          changes.append(k[0])
+          changes.append(k[1])
         rand = randrange(0, len(changes))
         population[i][changes[rand]] = 1
     print("Offspring {} is finished".format(i))
