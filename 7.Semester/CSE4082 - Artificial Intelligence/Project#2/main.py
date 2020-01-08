@@ -1,5 +1,5 @@
 from random import randrange, uniform
-
+import matplotlib.pyplot as plt
 import numpy as np
 
 # To keep argument values
@@ -20,6 +20,7 @@ def generate_random_pop():
   population = []
   for i in range(0, number_of_pop):
     offspring = []
+    #generate offsprings with uniform random distribution
     for j in range(0, number_of_nodes):
       if uniform(0, 1) < 0.5:
         offspring.append(0)
@@ -52,14 +53,16 @@ def repair(population):
 
       else:  # This means every edges are not covered
         changes = []
-        print("uzunluk2", len(temp_checklist))
+        print('uzunluk2', len(temp_checklist))
+        #put nodes that at the end of uncovered edges in a list 
         for k in temp_checklist:
           changes.append(k[0])
           changes.append(k[1])
+        #pick a random node in change_list and change it in population to try to make it repaired
         rand = randrange(0, len(changes))
         population[i][changes[rand]] = 1
     print("Offspring {} is finished".format(i))
-  average_fit = fit_value / number_of_pop
+  average_fit = fit_value / number_of_pop  #To calculate average fit
   return population, average_fit
 
 
@@ -69,6 +72,7 @@ def matching_pool_tournement(population, weight_array):
   for i in range(0, pop_size):
     fitness = 100000000
     winner = None
+    #choose 2 random offspring from population and select the best fitted(lowest total weight value) one as an element of new population
     for j in range(0, 2):
       rand = randrange(0, pop_size)
       new_fitness = 0
@@ -87,12 +91,14 @@ def crossover(matching_pool, crossover_prob, number_of_nodes):
   for j in range(0, number_of_pop):
     i += 2
     rand = uniform(0, 1)
+    #if random number is smaller than crossover probability make 2 child with 1 point crossover
     if rand <= crossover_prob:
       rand2 = randrange(0, number_of_nodes)
       child1 = matching_pool[i - 1][:rand2] + matching_pool[i][rand2:]
       child2 = matching_pool[i][:rand2] + matching_pool[i - 1][rand2:]
       crossoverred_pop.append(child1)
       crossoverred_pop.append(child2)
+    #else transfer parents to to new population with no change
     else:
       crossoverred_pop.append(matching_pool[i - 1])
       crossoverred_pop.append(matching_pool[i])
@@ -104,6 +110,7 @@ def crossover(matching_pool, crossover_prob, number_of_nodes):
 def mutate(crossoverred_pop, mutation_prob, number_of_nodes):
   for i in range(0, number_of_pop):
     for j in range(0, number_of_nodes):
+      #if random number is smaller than mutation probability change the responsible bit as opposite   
       if uniform(0, 1) < mutation_prob:
         crossoverred_pop[i][j] = 1 - crossoverred_pop[i][j]
   return crossoverred_pop
@@ -122,8 +129,8 @@ def main():
   """
 
   file_name = "003.txt"
-  number_of_gen = 100
-  number_of_pop = 100
+  number_of_gen = 10
+  number_of_pop = 10
   crossover_prob = 0.5
   mutation_prob = 0.05
 
@@ -158,15 +165,23 @@ def main():
   i = 0
   average_fit_values = [average_fit]
   while i != number_of_gen:
-    matching_pool = matching_pool_tournement(population, weight_array)
-    crosseverred_array = crossover(matching_pool, crossover_prob, number_of_nodes)
-    mutationed_array = mutate(crosseverred_array, mutation_prob, number_of_nodes)
-    population, average_fit = repair(mutationed_array)
+    matching_pool = matching_pool_tournement(population, weight_array)    # To form a matching pool with possible parents
+    crosseverred_array = crossover(matching_pool, crossover_prob, number_of_nodes)   # To crossover for parents that give child
+    mutationed_array = mutate(crosseverred_array, mutation_prob, number_of_nodes)     # To mutate some bits in childs
+    population, average_fit = repair(mutationed_array)    # To repair it and get average fit value
     average_fit_values.append(average_fit)
     i += 1
+    print("Generation", i , "is finished")
 
   print(average_fit_values)
+  for i in range(0,len(average_fit_values)):
+      generation.append(i)
 
+  plt.plot(generation,average_fit_values)
+  plt.xlabel('Generation')
+  plt.ylabel('Average Fitness')
+  plt.title('Generation-Average Fitness Graph of '+str(file_name)+' with popsize:'+str(number_of_pop)+', crossover probability:'+str(crossover_prob) +' and mutation probability:'+str(mutation_prob))
+  plt.show()
 
 if __name__ == "__main__":
   main()
