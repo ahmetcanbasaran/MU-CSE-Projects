@@ -39,20 +39,19 @@ def check_reservation(c):
     c.send(capacity)  # Return hotel capacity to make available suggestion
   else:
     message = message.split()
-    num_of_travelers = int(message[1])  # To keep how many travelers wil come
-    arrival_date = message[2].split("-")  # Split day interval
+    num_of_travelers = int(message[0])  # To keep how many travelers wil come
+    arrival_date = message[1].split("-")  # Split day interval
     first_arrival_date = int(arrival_date[0])  # First day of arrival
     last_arrival_date = int(arrival_date[1])  # Last day of arrival
     is_capacity_enough = True  # To keep quota availability
 
-    for dates in range(first_arrival_date, last_arrival_date + 1, 1):  # To check capacities
+    for dates in range(first_arrival_date, last_arrival_date+1, 1):  # To check capacities
       if num_of_travelers > hotel_capacity[dates]:
         is_capacity_enough = False
-    if is_capacity_enough:  # Reservation can done
+    if is_capacity_enough:  # Reservation can be done
       response = make_reservation(first_arrival_date, last_arrival_date, num_of_travelers)
       c.send(response)
     else:  # Capacity is not enough
-      capacity = str(hotel_capacity[0]) + "-" + str(hotel_capacity[1]) + "-" + str(hotel_capacity[2])
       c.send("Not enough capacity")  # Return hotel capacity to make available suggestion
   return
 
@@ -89,7 +88,6 @@ def main():
       c, addr = s.accept()  # To establish connection with client. Server waits here
       print "Connected with", addr[0], ":", str(addr[1])
       check_reservation(c)  # To check reservation whether is available
-
     except KeyboardInterrupt:
       s.close()
       print "\nServer is shutting down"

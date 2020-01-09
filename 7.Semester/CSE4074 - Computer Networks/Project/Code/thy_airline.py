@@ -5,24 +5,54 @@
 #        Oguzhan BOLUKBAS 150114022         #
 #                                           #
 #############################################
-
+import os
 import sys
 import socket
 
+airline_name = "THY"
+airline_capacity = []
+default_airline_capacity = 100
 
-def reservation(c):
-  message = c.recv(32768)  # should receive request from client. (GET ....)
-  print "\nReceived message: \n", message
 
-  while True:
-    response = "I am airlines"
-    c.send(response)
-    c.close()
-    print "Sent message: \n", response
-    break
+def make_reservation(departure_date, num_of_travelers):
+  airline_capacity[departure_date] -= num_of_travelers  # To decrease airline capacity
+
+  if not os.path.exists("airline_databases"):  # To save info into databases
+    os.makedirs("airline_databases")  # To open a folders for databases
+
+  path = os.getcwd() + "/airline_databases"
+  file_path = path + "/" + airline_name
+  f = open(file_path, 'w')
+  db_log = "\nDeparture date-1, current capacity: " + str(airline_capacity[0]) +\
+           "\nDeparture date-2, current capacity: " + str(airline_capacity[1]) +\
+           "\nDeparture date-3, current capacity: " + str(airline_capacity[2])
+  f.write(db_log)  # To write new capacities into database
+  f.close()
+  return "DONE"  # To say to agency that reservation process is done
+
+
+def check_reservation(c):
+  message = c.recv(32768)
+  if message == "What is your capacity?":
+    capacity = str(airline_capacity[0]) + "-" + str(airline_capacity[1]) + "-" + str(airline_capacity[2])
+    c.send(capacity)  # Return airline capacity to make available suggestion
+  else:
+    message = message.split()
+    num_of_travelers = int(message[0])  # To keep how many travelers wil come
+    departure_date = int(message[1])  # Split day interval
+    if num_of_travelers <= airline_capacity[departure_date]:  # Reservation can be done
+      response = make_reservation(departure_date, num_of_travelers)
+      c.send(response)
+    else:  # Capacity is not enough
+      c.send("Not enough capacity")  # Return airline capacity to make available suggestion
+  return
 
 
 def main():
+  airline_capacity.append(default_airline_capacity)  # Day-1
+  airline_capacity.append(default_airline_capacity)  # Day-2
+  airline_capacity.append(default_airline_capacity)  # Day-3
+
   try:
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     print 'Socket Generated'
@@ -47,12 +77,9 @@ def main():
   # To listen forever until interrupted or an error occurs
   while True:
     try:
-      # To establish connection with client.
-      c, addr = s.accept()  # Server waits here
+      c, addr = s.accept()  # To establish connection with client. Server waits here
       print "Connected with", addr[0], ":", str(addr[1])
-
-      reservation(c)
-
+      check_reservation(c)  # To check reservation whether is available
     except KeyboardInterrupt:
       s.close()
       print "\nServer is shutting down"

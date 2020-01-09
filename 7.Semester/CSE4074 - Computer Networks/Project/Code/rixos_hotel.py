@@ -39,8 +39,8 @@ def check_reservation(c):
     c.send(capacity)  # Return hotel capacity to make available suggestion
   else:
     message = message.split()
-    num_of_travelers = int(message[1])  # To keep how many travelers wil come
-    arrival_date = message[2].split("-")  # Split day interval
+    num_of_travelers = int(message[0])  # To keep how many travelers wil come
+    arrival_date = message[1].split("-")  # Split day interval
     first_arrival_date = int(arrival_date[0])  # First day of arrival
     last_arrival_date = int(arrival_date[1])  # Last day of arrival
     is_capacity_enough = True  # To keep quota availability

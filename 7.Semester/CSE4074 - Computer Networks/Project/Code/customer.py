@@ -12,8 +12,14 @@ import Tkinter as tk # For GUI
 
 reservation_info = None
 
+
+def close_gui():
+  master.destroy()
+  return
+
+
 def run_program():
-  global reservation_info
+  global reservation_info, master
 
   arrival_date = e1.get()
   departure_date = e2.get()
@@ -27,10 +33,27 @@ def run_program():
   message = reservation_info  # To send reservation data to travel agency
 
   s.sendall(message)  # Send the whole string
-  print s.recv(32768)  # receive data from the server
+  response = s.recv(32768)  # receive data from the server
+  print response
   master.destroy()  # To close tkinter in a properly way
 
+  if response != "Suggestions rejected!":
+    response = response.split()
+    master = tk.Tk()
+    tk.Label(master, text="Arrival date: " + response[0]).grid(row=0)
+    tk.Label(master, text="Departure date: " + response[1]).grid(row=1)
+    tk.Label(master, text="Hotel name: " + response[2]).grid(row=2)
+    tk.Label(master, text="Airline name: " + response[3]).grid(row=3)
+    tk.Label(master, text="Number of travelers: " + response[4]).grid(row=4)
+    tk.Button(master, text='CLOSE', command=close_gui).grid(row=5, column=0, sticky=tk.W, pady=4)
+    master.mainloop()
+  else:
+    master = tk.Tk()
+    tk.Label(master, text="All suggestions rejected!").grid(row=0)
+    tk.Button(master, text='CLOSE', command=close_gui).grid(row=1, column=0, sticky=tk.W, pady=4)
+    master.mainloop()
 
+# ----------------- Main part begins here -----------------
 try:
   s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # To generate an AF_INET, STREAM socket (TCP)
 except socket.error, msg:
