@@ -10,11 +10,11 @@ import Tkinter as tk  # For GUI
 import socket
 import sys
 import thread
+import time
 
 s = None  # To keep socket globally
 c = None  # To keep connection globally
 is_suggestion_accepted = None  # For suggestion accaptance control
-master = tk.Tk()  # Tkinter master window for GUI
 
 # To keep reservation info
 departure_date = None
@@ -35,9 +35,9 @@ def reservation(arrival_date, hotel_name, number_of_travelers):
 
   host = 'localhost'
   if hotel_name == "Rixos":
-    port = 8888
+    port = 9091
   else:
-    port = 9999
+    port = 9092
 
   try:
     s.connect((host, port))  # To connect to the server on local computer
@@ -63,8 +63,8 @@ def reservation(arrival_date, hotel_name, number_of_travelers):
 
 def learn_capacities():
   host = 'localhost'
-  rixos_port = 8888
-  hilton_port = 9999
+  rixos_port = 9091
+  hilton_port = 9092
 
   # ----- Rixos Part -----
   try:  # To connect to server via TCP connection
@@ -117,7 +117,6 @@ def learn_capacities():
 def rejected_gui():
   global is_suggestion_accepted
   is_suggestion_accepted = False
-  master.destroy()
 
 
 def accepted_gui():
@@ -192,8 +191,8 @@ def reservation_request():
   reservation_info = request.split(" ")  # To split request to get informations
 
   global departure_date, arrival_date, hotel_name, airline_name, number_of_travelers
-  departure_date = int(reservation_info[0])
-  arrival_date = reservation_info[1]
+  arrival_date = reservation_info[0]
+  departure_date = int(reservation_info[1])
   hotel_name = reservation_info[2]
   airline_name = reservation_info[3]
   number_of_travelers = int(reservation_info[4])
@@ -212,6 +211,7 @@ def reservation_request():
     reservated = True
   else:
     reservated = False
+    print("Falseee!")
 
 
 def main():
@@ -246,7 +246,8 @@ def main():
       # To establish connection with client.
       c, addr = s.accept()  # Server waits here
       print "\nConnected with", addr[0], ":", str(addr[1])
-      thread.start_new_thread(reservation_request, ())
+      # thread.start_new_thread(reservation_request, ()); time.sleep(10)
+      reservation_request()
       if not reservated:
         find_suggestions(arrival_date, departure_date, number_of_travelers)
     except KeyboardInterrupt:

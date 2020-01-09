@@ -70,7 +70,7 @@ def main():
     sys.exit()
 
   host = ''  # Symbolic name meaning all available interfaces
-  port = 9999  # Arbitrary non-privileged port
+  port = 9092  # Arbitrary non-privileged port
 
   try:
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)

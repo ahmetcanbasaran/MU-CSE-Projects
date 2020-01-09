@@ -1,63 +1,54 @@
-#############################################
-#                                           #
-#        CSE474 - Computer Networks         #
-#          Programming Assignment           #
-#        Oguzhan BOLUKBAS 150114022         #
-#                                           #
-#############################################
+import time
+from Tkinter import *
 
-import sys
-import socket
+import thread # should use the threading module instead!
+import Queue
 
+import os
 
-def reservation(c):
-  message = c.recv(32768)  # should receive request from client. (GET ....)
-  print "\nReceived message: \n", message
+class ThreadSafeConsole(Text):
+    def __init__(self, master, **options):
+        Text.__init__(self, master, **options)
+        self.queue = Queue.Queue()
+        self.update_me()
+    def write(self, line):
+        self.queue.put(line)
+    def clear(self):
+        self.queue.put(None)
+    def update_me(self):
+        try:
+            while 1:
+                line = self.queue.get_nowait()
+                if line is None:
+                    self.delete(1.0, END)
+                else:
+                    self.insert(END, str(line))
+                self.see(END)
+                self.update_idletasks()
+        except Queue.Empty:
+            pass
+        self.after(100, self.update_me)
 
-  while True:
-    response = "I am airlines"
-    c.send(response)
-    c.close()
-    print "Sent message: \n", response
-    break
+# this function pipes input to an widget
+def pipeToWidget(input, widget):
+    widget.clear()
+    while 1:
+        line = input.readline()
+        if not line:
+            break
+        widget.write(line)
 
+def funcThread(widget):
+    input = os.popen('dir', 'r')
+    pipeToWidget(input, widget)
 
-def main():
-  try:
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    print 'Socket Generated'
-  except socket.error, msg:
-    print 'Failed to create socket. Error code: ' + str(msg[0]) + ' , Error message : ' + msg[1]
-    sys.exit()
-
-  host = ''  # Symbolic name meaning all available interfaces
-  port = 9999  # Arbitrary non-privileged port
-
-  try:
-    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    s.bind((host, port))  # To bind to the port
-  except socket.error, msg:
-    print 'Bind failed. Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
-    sys.exit()
-  print 'Socket bind complete. Starting server on', port
-
-  s.listen(5)  # To put the socket into listening mode and wait for client connection.
-  print "Socket is listening"
-
-  # To listen forever until interrupted or an error occurs
-  while True:
-    try:
-      # To establish connection with client.
-      c, addr = s.accept()  # Server waits here
-      print "Connected with", addr[0], ":", str(addr[1])
-
-      reservation(c)
-
-    except KeyboardInterrupt:
-      s.close()
-      print "\nServer is shutting down"
-      sys.exit()
-
-
-if __name__ == '__main__':
-  main()
+# uber-main
+root = Tk()
+widget = ThreadSafeConsole(root)
+widget.pack(side=TOP, expand=YES, fill=BOTH)
+thread.start_new(funcThread, (widget,))
+thread.start_new(funcThread, (widget,))
+thread.start_new(funcThread, (widget,))
+thread.start_new(funcThread, (widget,))
+thread.start_new(funcThread, (widget,))
+root.mainloop()
