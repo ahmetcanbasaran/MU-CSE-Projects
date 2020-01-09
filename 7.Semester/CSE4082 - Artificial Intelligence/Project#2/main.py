@@ -1,4 +1,4 @@
-from random import randrange, uniform
+from random import randrange, uniform, sample
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -15,21 +15,48 @@ number_of_edges = 0  # To keep number of edges
 weight_array = []  # To keep weight values of vertices
 adjacency_matrix = None  # To fill adjacency matrix with zeros
 checklist = []  # To store edges with node numbers
+average_fit_values = None
+
+def is_any_edge(edges):
+  for i in range(0, number_of_nodes):
+    for j in range(0, number_of_nodes):
+      if edges[i][j] == 1:
+        return True
+  return False
+
+
+def delete_edges(edges, u):
+  deleted = False
+  for i in range(0, number_of_nodes):
+    if edges[u][i] == 1:
+      # print("edges[", u, "][", i, "]: ", edges[u][i])
+      edges[u][i] = 0
+      deleted = True
+    if edges[i][u] == 1:
+      # print("edges[", i, "][", u, "]: ", edges[i][u])
+      edges[i][u] = 0
+      deleted = True
+  return deleted
 
 
 def generate_random_pop():
-  population = []
-  for i in range(0, number_of_pop):
-    offspring = []
-    #generate offsprings with uniform random distribution
-    for j in range(0, number_of_nodes):
-      if uniform(0, 1) < 0.5:
-        offspring.append(0)
-      else:
-        offspring.append(1)
-    population.append(offspring)
+  global average_fit_values
+  population = np.zeros((number_of_pop, number_of_nodes), dtype=int)
+  fit_value = 0
+  for i in range(0, number_of_pop):  # To keep offspring number in population
+    edges = adjacency_matrix.copy()
+    rnd_nodes = sample(range(0, number_of_nodes), number_of_nodes)
+    k = 0
+    while is_any_edge(edges):  # To check edges if there is any uncovered
+      node = rnd_nodes[k]  # To generate a random node
+      k += 1
+      is_deleted = delete_edges(edges, node)
+      if is_deleted:
+          population[i][node] = 1
+    for m in range(0, number_of_nodes):  # To calculate fitness of the offspring
+      fit_value += population[i][m] * weight_array[m]
+  average_fit_values = [fit_value / number_of_pop]  # To calculate average fit
   return population
-
 
 """
 def generate_random_pop():
@@ -69,7 +96,6 @@ def repair(population):
 
       else:  # This means every edges are not covered
         changes = []
-        print('uzunluk2', len(temp_checklist))
         #put nodes that at the end of uncovered edges in a list
         for k in temp_checklist:
           changes.append(k[0])
@@ -107,10 +133,8 @@ def crossover(population):
     #if random number is smaller than crossover probability make 2 child with 1 point crossover
     if rand <= crossover_prob:
       rand2 = randrange(0, number_of_nodes)
-      child1 = population[i - 1][:rand2] + population[i][rand2:]
-      child2 = population[i][:rand2] + population[i - 1][rand2:]
-      population[i-1] = child1
-      population[i] = child2
+      tmp = population[i][:rand2].copy()
+      population[i][:rand2], population[i - 1][:rand2] = population[i - 1][:rand2], tmp
 
 
 def mutate(population):
@@ -124,21 +148,23 @@ def mutate(population):
 def main():
   global file_name, number_of_gen, number_of_pop, crossover_prob, mutation_prob
   global number_of_nodes, number_of_edges, weight_array, adjacency_matrix
-  """
+
+
   # To get values of variables from the user
   file_name = input("Name of the graph file: ")
   number_of_gen = eval(input("Number of generations: "))
   number_of_pop = eval(input("Population size: "))
   crossover_prob = eval(input("Crossover probability: "))
   mutation_prob = eval(input("Mutation probability: "))
-  """
 
+  """
   file_name = "003.txt"
-  number_of_gen = 5
-  number_of_pop = 4
+  number_of_gen = 100
+  number_of_pop = 100
   crossover_prob = 0.5
   mutation_prob = 0.05
-
+  """
+  
   i = 0
   # To get information from the input file
   with open("graphs/" + file_name, 'r') as f:
@@ -146,7 +172,7 @@ def main():
     for line in lines:  # To handle input file line by line
       if i == 0:  # Number of nodes is written in the first line
         number_of_nodes = int(line)
-        adjacency_matrix = np.zeros((number_of_nodes, number_of_nodes))
+        adjacency_matrix = np.zeros((number_of_nodes, number_of_nodes), dtype=int)
       elif i == 1:  # Number of edges is written in the second line
         number_of_edges = int(float(line))
       if 2 <= i < number_of_nodes + 2:  # List of node weights is written in the continuation lines
@@ -165,10 +191,7 @@ def main():
         checklist.append([i, j])
 
   population = generate_random_pop()  # To produce the first population randommly
-  average_fit = repair(population)  # To repair it and get average fit value
-
   i = 0
-  average_fit_values = [average_fit]
   while i != number_of_gen:
     population = mating_pool_tournement(population)    # To form a mating pool with possible parents
     crossover(population)   # To crossover for parents that give child
@@ -188,6 +211,7 @@ def main():
   plt.ylabel('Average Fitness')
   plt.title('Generation-Average Fitness Graph of '+str(file_name)+' with popsize:'+str(number_of_pop)+', crossover probability:'+str(crossover_prob) +' and mutation probability:'+str(mutation_prob))
   plt.show()
+
 
 if __name__ == "__main__":
   main()
