@@ -11,7 +11,20 @@ import socket
 
 hotel_name = "Rixos"
 hotel_capacity = []
-default_hotel_capacity = 100
+
+
+def get_capacity():
+  global hotel_capacity
+  del hotel_capacity[:]
+  path = os.getcwd() + "/hotel_databases"
+  filepath = path + "/" + hotel_name
+  f = open(filepath, 'r')
+  line = f.readline()
+  while line:
+    hotel_capacity.append(int(line))
+    line = f.readline()
+  f.close()
+  return
 
 
 def make_reservation(first_arrival_date, last_arrival_date, num_of_travelers):
@@ -22,17 +35,18 @@ def make_reservation(first_arrival_date, last_arrival_date, num_of_travelers):
     os.makedirs("hotel_databases")  # To open a folders for databases
 
   path = os.getcwd() + "/hotel_databases"
-  file_path = path + "/" + hotel_name
-  f = open(file_path, 'w')
-  db_log = "\nArrival date-1, current capacity: " + str(hotel_capacity[0]) +\
-           "\nArrival date-2, current capacity: " + str(hotel_capacity[1]) +\
-           "\nArrival date-3, current capacity: " + str(hotel_capacity[2])
+  filepath = path + "/" + hotel_name
+  f = open(filepath, 'w')
+  db_log = str(hotel_capacity[0]) + "\n" + \
+           str(hotel_capacity[1]) + "\n" + \
+           str(hotel_capacity[2])
   f.write(db_log)  # To write new capacities into database
   f.close()
   return "DONE"  # To say to agency that reservation process is done
 
 
 def check_reservation(c):
+  get_capacity()
   message = c.recv(32768)
   if message == "What is your capacity?":
     capacity = str(hotel_capacity[0]) + "-" + str(hotel_capacity[1]) + "-" + str(hotel_capacity[2])
@@ -57,10 +71,6 @@ def check_reservation(c):
 
 
 def main():
-  hotel_capacity.append(default_hotel_capacity)  # Day-1
-  hotel_capacity.append(default_hotel_capacity)  # Day-2
-  hotel_capacity.append(default_hotel_capacity)  # Day-3
-
   try:
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     print 'Socket Generated'

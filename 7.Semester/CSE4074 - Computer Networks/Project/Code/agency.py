@@ -367,7 +367,7 @@ def main():
       if not reservated:
         reservation_success = find_suggestions(arrival_date, departure_date, number_of_travelers)
         if not reservation_success:
-          c.send("Suggestions rejected!")
+          c.send("Reservation failed!")
     except KeyboardInterrupt:
       s.close()
       print "\nServer is shutting down"

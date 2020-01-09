@@ -37,20 +37,21 @@ def run_program():
   print response
   master.destroy()  # To close tkinter in a properly way
 
-  if response != "Suggestions rejected!":
+  if response != "Reservation failed!":
     response = response.split()
     master = tk.Tk()
-    tk.Label(master, text="Arrival date: " + response[0]).grid(row=0)
-    tk.Label(master, text="Departure date: " + response[1]).grid(row=1)
-    tk.Label(master, text="Hotel name: " + response[2]).grid(row=2)
-    tk.Label(master, text="Airline name: " + response[3]).grid(row=3)
-    tk.Label(master, text="Number of travelers: " + response[4]).grid(row=4)
-    tk.Button(master, text='CLOSE', command=close_gui).grid(row=5, column=0, sticky=tk.W, pady=4)
+    tk.Label(master, text="---RESERVED---").grid(row=0)
+    tk.Label(master, text="Arrival date: " + response[0]).grid(row=1)
+    tk.Label(master, text="Departure date: " + response[1]).grid(row=2)
+    tk.Label(master, text="Hotel name: " + response[2]).grid(row=3)
+    tk.Label(master, text="Airline name: " + response[3]).grid(row=4)
+    tk.Label(master, text="Number of travelers: " + response[4]).grid(row=5)
+    tk.Button(master, text='THANKS', command=close_gui).grid(row=6)
     master.mainloop()
   else:
     master = tk.Tk()
-    tk.Label(master, text="All suggestions rejected!").grid(row=0)
-    tk.Button(master, text='CLOSE', command=close_gui).grid(row=1, column=0, sticky=tk.W, pady=4)
+    tk.Label(master, text=response).grid(row=0)
+    tk.Button(master, text='CLOSE', command=close_gui).grid(row=1)
     master.mainloop()
 
 # ----------------- Main part begins here -----------------

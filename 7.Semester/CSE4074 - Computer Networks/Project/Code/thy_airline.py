@@ -11,7 +11,20 @@ import socket
 
 airline_name = "THY"
 airline_capacity = []
-default_airline_capacity = 100
+
+
+def get_capacity():
+  global airline_capacity
+  del airline_capacity[:]
+  path = os.getcwd() + "/airline_databases"
+  filepath = path + "/" + airline_name
+  f = open(filepath, 'r')
+  line = f.readline()
+  while line:
+    airline_capacity.append(int(line))
+    line = f.readline()
+  f.close()
+  return
 
 
 def make_reservation(departure_date, num_of_travelers):
@@ -21,17 +34,18 @@ def make_reservation(departure_date, num_of_travelers):
     os.makedirs("airline_databases")  # To open a folders for databases
 
   path = os.getcwd() + "/airline_databases"
-  file_path = path + "/" + airline_name
-  f = open(file_path, 'w')
-  db_log = "\nDeparture date-1, current capacity: " + str(airline_capacity[0]) +\
-           "\nDeparture date-2, current capacity: " + str(airline_capacity[1]) +\
-           "\nDeparture date-3, current capacity: " + str(airline_capacity[2])
+  filepath = path + "/" + airline_name
+  f = open(filepath, 'w')
+  db_log = str(airline_capacity[0]) + "\n" + \
+           str(airline_capacity[1]) + "\n" + \
+           str(airline_capacity[2])
   f.write(db_log)  # To write new capacities into database
   f.close()
   return "DONE"  # To say to agency that reservation process is done
 
 
 def check_reservation(c):
+  get_capacity()
   message = c.recv(32768)
   if message == "What is your capacity?":
     capacity = str(airline_capacity[0]) + "-" + str(airline_capacity[1]) + "-" + str(airline_capacity[2])
@@ -49,10 +63,6 @@ def check_reservation(c):
 
 
 def main():
-  airline_capacity.append(default_airline_capacity)  # Day-1
-  airline_capacity.append(default_airline_capacity)  # Day-2
-  airline_capacity.append(default_airline_capacity)  # Day-3
-
   try:
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     print 'Socket Generated'
