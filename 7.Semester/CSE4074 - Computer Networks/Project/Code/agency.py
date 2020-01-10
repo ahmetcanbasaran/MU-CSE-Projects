@@ -23,6 +23,7 @@ hotel_name = None
 airline_name = None
 number_of_travelers = None
 reservated = None
+is_finished = None
 master = None  # For GUI
 
 def rejected_gui():
@@ -300,7 +301,7 @@ def reservation(arrival_date, departure_date, hotel_name, airline_name, number_o
 
 
 def reservation_request():
-  global reservated
+  global reservated, is_finished
   request = c.recv(32768)  # To get reuest
   reservation_info = request.split(" ")  # To split request to get informations
 
@@ -325,13 +326,15 @@ def reservation_request():
     c.send(reservation_response)  # To reply the response of the client
     c.close()
     reservated = True
+    is_finished = True
   else:
     reservated = False
+    is_finished = True
   return
 
 
 def main():
-  global s, c
+  global s, c, is_finished
   try:
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     print 'Socket Generated'
@@ -358,12 +361,15 @@ def main():
 
   # To listen forever until interrupted or an error occurs
   while True:
+    is_finished = False
     try:
       # To establish connection with client.
       c, addr = s.accept()  # Server waits here
       print "\nConnected with", addr[0], ":", str(addr[1])
-      # thread.start_new_thread(reservation_request, ()); time.sleep(10)
-      reservation_request()
+      thread.start_new_thread(reservation_request, ());
+      while True:
+        if is_finished:
+          break
       if not reservated:
         reservation_success = find_suggestions(arrival_date, departure_date, number_of_travelers)
         if not reservation_success:
