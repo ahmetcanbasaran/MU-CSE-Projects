@@ -29,11 +29,9 @@ def delete_edges(edges, u):
   deleted = False
   for i in range(0, number_of_nodes):
     if edges[u][i] == 1:
-      # print("edges[", u, "][", i, "]: ", edges[u][i])
       edges[u][i] = 0
       deleted = True
     if edges[i][u] == 1:
-      # print("edges[", i, "][", u, "]: ", edges[i][u])
       edges[i][u] = 0
       deleted = True
   return deleted
@@ -58,20 +56,6 @@ def generate_random_pop():
   average_fit_values = [fit_value / number_of_pop]  # To calculate average fit
   return population
 
-"""
-def generate_random_pop():
-  population = []
-  for i in range(0, number_of_pop):
-    offspring = []
-    #generate offsprings with uniform random distribution
-    for j in range(0, number_of_nodes):
-      if uniform(0, 1) < 0.5:
-        offspring.append(0)
-      else:
-        offspring.append(1)
-    population.append(offspring)
-  return population
-"""
 
 def repair(population):
   fit_value = 0
@@ -103,7 +87,6 @@ def repair(population):
         #pick a random node in change_list and change it in population to try to make it repaired
         rand = randrange(0, len(changes))
         population[i][changes[rand]] = 1
-    print("Offspring {} is finished".format(i))
   average_fit = fit_value / number_of_pop  #To calculate average fit
   return average_fit
 
@@ -149,21 +132,21 @@ def main():
   global file_name, number_of_gen, number_of_pop, crossover_prob, mutation_prob
   global number_of_nodes, number_of_edges, weight_array, adjacency_matrix
 
-
+  """
   # To get values of variables from the user
   file_name = input("Name of the graph file: ")
   number_of_gen = eval(input("Number of generations: "))
   number_of_pop = eval(input("Population size: "))
   crossover_prob = eval(input("Crossover probability: "))
   mutation_prob = eval(input("Mutation probability: "))
+  """
 
-  """
-  file_name = "003.txt"
-  number_of_gen = 100
-  number_of_pop = 100
-  crossover_prob = 0.5
+  file_name = "015.txt"
+  number_of_gen = 400
+  number_of_pop = 200
+  crossover_prob = 0.9
   mutation_prob = 0.05
-  """
+  
   
   i = 0
   # To get information from the input file
