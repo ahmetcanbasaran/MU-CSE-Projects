@@ -176,7 +176,8 @@ def main():
   plt.plot(generation, average_fit_values)
   plt.xlabel('Generation')
   plt.ylabel('Average Fitness')
-  plt.title('Generation-Average Fitness Graph of '+str(file_name)+' with popsize:'+str(number_of_pop)+', crossover probability:'+str(crossover_prob) +' and mutation probability:'+str(mutation_prob))
+  plt.title("File: " + file_name + ", # Generations: " + str(number_of_gen) + ", Pop. Size " + str(pop_size) +
+            ", Crossover Prob. " + str(crossover_prob) + ", Mutation Prob. " + str(mutation_prob) + ".")
   plt.show()
 
 
