@@ -14,8 +14,8 @@ number_of_nodes = 0  # To keep number of nodes
 number_of_edges = 0  # To keep number of edges
 weight_array = []  # To keep weight values of vertices
 adjacency_matrix = None  # To fill adjacency matrix with zeros
-checklist = []  # To store edges with node numbers
 average_fit_values = None
+
 
 def is_any_edge(edges):
   for i in range(0, number_of_nodes):
@@ -60,33 +60,23 @@ def generate_random_pop():
 def repair(population):
   fit_value = 0
   for i in range(0, number_of_pop):  # To process each offspring
-    repaired = False
-    temp_checklist = checklist.copy()
-    while not repaired:
-      for j in range(0, number_of_nodes):  # To check each node one by one
-        if population[i][j] == 1:  # If this node exist in population
-          deleted_list = []
-          for k in range(0, len(temp_checklist)):  # To check every edges one by one
-            a = temp_checklist[k]
-            if j == a[0] or j == a[1]:
-              deleted_list.append(k)
-          for l in range(0, len(deleted_list)):
-            del temp_checklist[deleted_list[l] - l]
+    edges = adjacency_matrix.copy()
 
-      if len(temp_checklist) == 0:  # To check whether every edges are covered
-        repaired = True
-        for k in range(0, number_of_nodes):  # To calculate fitness of the offspring
-          fit_value += population[i][k] * weight_array[k]
+    for j in range(0, number_of_nodes):  # To check each node one by one
+      delete_edges(edges, population[i][j])  # To delete it this node exist in population
 
-      else:  # This means every edges are not covered
-        changes = []
-        #put nodes that at the end of uncovered edges in a list
-        for k in temp_checklist:
-          changes.append(k[0])
-          changes.append(k[1])
-        #pick a random node in change_list and change it in population to try to make it repaired
-        rand = randrange(0, len(changes))
-        population[i][changes[rand]] = 1
+    j = 0
+    rnd_nodes = sample(range(0, number_of_nodes), number_of_nodes)
+    while is_any_edge(edges):  # To check edges if there is any uncovered
+      node = rnd_nodes[j]  # To generate a random node
+      j += 1
+      is_deleted = delete_edges(edges, node)
+      if is_deleted:
+        population[i][node] = 1
+
+    for j in range(0, number_of_nodes):  # To calculate fitness of the offspring
+      fit_value += population[i][j] * weight_array[j]
+
   average_fit = fit_value / number_of_pop  #To calculate average fit
   return average_fit
 
@@ -132,21 +122,20 @@ def main():
   global file_name, number_of_gen, number_of_pop, crossover_prob, mutation_prob
   global number_of_nodes, number_of_edges, weight_array, adjacency_matrix
 
-  """
   # To get values of variables from the user
   file_name = input("Name of the graph file: ")
   number_of_gen = eval(input("Number of generations: "))
   number_of_pop = eval(input("Population size: "))
   crossover_prob = eval(input("Crossover probability: "))
   mutation_prob = eval(input("Mutation probability: "))
+  
   """
-
-  file_name = "015.txt"
-  number_of_gen = 400
-  number_of_pop = 200
+  file_name = "003.txt"
+  number_of_gen = 10
+  number_of_pop = 4
   crossover_prob = 0.9
   mutation_prob = 0.05
-  
+  """
   
   i = 0
   # To get information from the input file
@@ -166,14 +155,8 @@ def main():
         adjacency_matrix[int(n[0])][int(n[1])] = 1  # To assign contiguity of nodes with putting 1 into the adj. matrix
       i += 1
 
-  # To store edges with related nodes into a list
-  global checklist
-  for i in range(0, number_of_nodes):
-    for j in range(i, number_of_nodes):
-      if adjacency_matrix[i][j] == 1:
-        checklist.append([i, j])
-
   population = generate_random_pop()  # To produce the first population randommly
+
   i = 0
   while i != number_of_gen:
     population = mating_pool_tournement(population)    # To form a mating pool with possible parents
@@ -184,8 +167,9 @@ def main():
     i += 1
     print("Generation", i , "is finished")
 
-  generation = []
   print(average_fit_values)
+
+  generation = []
   for i in range(0,len(average_fit_values)):
       generation.append(i)
 
