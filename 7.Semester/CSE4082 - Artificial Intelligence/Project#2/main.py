@@ -1,4 +1,4 @@
-from random import randrange, uniform, sample
+from random import randrange, uniform, sample, randint
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -15,6 +15,7 @@ number_of_edges = 0  # To keep number of edges
 weight_array = []  # To keep weight values of vertices
 adjacency_matrix = None  # To fill adjacency matrix with zeros
 average_fit_values = None
+fitness_values = None
 
 
 def is_any_edge(edges):
@@ -38,7 +39,7 @@ def delete_edges(edges, u):
 
 
 def generate_random_pop():
-  global average_fit_values
+  global average_fit_values, fitness_values
   population = np.zeros((number_of_pop, number_of_nodes), dtype=int)
   fit_value = 0
   for i in range(0, number_of_pop):  # To keep offspring number in population
@@ -51,20 +52,22 @@ def generate_random_pop():
       is_deleted = delete_edges(edges, node)
       if is_deleted:
           population[i][node] = 1
+    offspring_fitness = 0
     for m in range(0, number_of_nodes):  # To calculate fitness of the offspring
-      fit_value += population[i][m] * weight_array[m]
+      offspring_fitness += population[i][m] * weight_array[m]
+    fitness_values[i] = offspring_fitness  # To save fitness value of the spring
+    fit_value += offspring_fitness
   average_fit_values = [fit_value / number_of_pop]  # To calculate average fit
   return population
 
 
 def repair(population):
+  global fitness_values
   fit_value = 0
   for i in range(0, number_of_pop):  # To process each offspring
     edges = adjacency_matrix.copy()
-
     for j in range(0, number_of_nodes):  # To check each node one by one
       delete_edges(edges, population[i][j])  # To delete it this node exist in population
-
     j = 0
     rnd_nodes = sample(range(0, number_of_nodes), number_of_nodes)
     while is_any_edge(edges):  # To check edges if there is any uncovered
@@ -73,10 +76,11 @@ def repair(population):
       is_deleted = delete_edges(edges, node)
       if is_deleted:
         population[i][node] = 1
-
-    for j in range(0, number_of_nodes):  # To calculate fitness of the offspring
-      fit_value += population[i][j] * weight_array[j]
-
+    offspring_fitness = 0
+    for m in range(0, number_of_nodes):  # To calculate fitness of the offspring
+      offspring_fitness += population[i][m] * weight_array[m]
+    fitness_values[i] = offspring_fitness  # To save fitness value of the spring
+    fit_value += offspring_fitness
   average_fit = fit_value / number_of_pop  #To calculate average fit
   return average_fit
 
@@ -84,19 +88,15 @@ def repair(population):
 def mating_pool_tournement(population):
   pop_size = number_of_pop
   mating_pool = []
-  for i in range(0, pop_size):
-    fitness = 100000000
-    winner = None
-    #choose 2 random offspring from population and select the best fitted(lowest total weight value) one as an element of new population
-    for j in range(0, 2):
-      rand = randrange(0, pop_size)
-      new_fitness = 0
-      for k in range(0, len(population[rand])):
-        new_fitness += population[rand][k] * weight_array[k]
-      if new_fitness < fitness:
-        fitness = new_fitness
-        winner = rand
-    mating_pool.append(population[winner])
+  for i in range(0, pop_size):  # To iterate until mating pool is filled
+    rand1 = randint(0, pop_size-1)
+    rand2 = randint(0, pop_size-1)
+    while rand2 == rand1:  # To continue until different random numbers obtained
+      rand2 = randint(0, pop_size-1)
+    if fitness_values[rand1] < fitness_values[rand2]:  # To get lowest cost offspring
+      mating_pool.append(population[rand1])
+    else:
+      mating_pool.append(population[rand2])
   return mating_pool
 
 
@@ -104,7 +104,7 @@ def crossover(population):
   for i in range(1, number_of_pop+1, 2):
     rand = uniform(0, 1)
     #if random number is smaller than crossover probability make 2 child with 1 point crossover
-    if rand <= crossover_prob:
+    if rand < crossover_prob:
       rand2 = randrange(0, number_of_nodes)
       tmp = population[i][:rand2].copy()
       population[i][:rand2], population[i - 1][:rand2] = population[i - 1][:rand2], tmp
@@ -120,7 +120,7 @@ def mutate(population):
 
 def main():
   global file_name, number_of_gen, number_of_pop, crossover_prob, mutation_prob
-  global number_of_nodes, number_of_edges, weight_array, adjacency_matrix
+  global number_of_nodes, number_of_edges, weight_array, adjacency_matrix, fitness_values
 
   # To get values of variables from the user
   file_name = input("Name of the graph file: ")
@@ -155,6 +155,7 @@ def main():
         adjacency_matrix[int(n[0])][int(n[1])] = 1  # To assign contiguity of nodes with putting 1 into the adj. matrix
       i += 1
 
+  fitness_values = np.zeros((number_of_pop, 1))  # To store fitness values
   population = generate_random_pop()  # To produce the first population randommly
 
   i = 0
