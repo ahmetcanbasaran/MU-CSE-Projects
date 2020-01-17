@@ -16,3 +16,5 @@ grandparent(X, Y) :- parent(X, Z), parent(Z, Y).
 sister(X, Y) :- parent(Z, X), parent(Z, Y), female(X), different(X, Y).
 predecessor(X, Y) :- parent(X, Y).
 predecessor(X, Y) :- parent(X, Z), predecessor(Z ,Y).
+has_a_child(X) :- parent(X, _).
+grandpa(X, Y) :- parent(X, _), parent(_, Y).
