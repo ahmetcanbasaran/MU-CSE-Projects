@@ -20,7 +20,7 @@ fitness_values = None
 
 def is_any_edge(edges):
   for i in range(0, number_of_nodes):
-    for j in range(0, number_of_nodes):
+    for j in range(i, number_of_nodes):
       if edges[i][j] == 1:
         return True
   return False
@@ -31,8 +31,6 @@ def delete_edges(edges, u):
   for i in range(0, number_of_nodes):
     if edges[u][i] == 1:
       edges[u][i] = 0
-      deleted = True
-    if edges[i][u] == 1:
       edges[i][u] = 0
       deleted = True
   return deleted
